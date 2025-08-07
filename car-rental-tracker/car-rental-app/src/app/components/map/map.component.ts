@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, inject, signal, effect, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, inject, signal, effect, ChangeDetectorRef, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { CarDataService } from '../../services/car-data.service';
@@ -17,6 +17,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private markers = new Map<string, L.Marker>();
   private markerGroup!: L.LayerGroup;
   private selectedCarId = signal<string | null>(null);
+
+  // Input to receive selected car from parent component
+  @Input() set selectedCar(car: Car | null) {
+    if (car) {
+      this._selectedCar.set(car);
+    }
+  }
+  private _selectedCar = signal<Car | null>(null);
 
   private carDataService = inject(CarDataService);
   private mapService = inject(MapService);
@@ -38,6 +46,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       const cars = this.carDataService.allCars();
       this.updateMarkers(cars);
+    });
+
+    // Effect to handle selected car changes
+    effect(() => {
+      const car = this._selectedCar();
+      if (car) {
+        this.focusOnCar(car.id);
+      }
     });
   }
 
@@ -147,10 +163,27 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // In a real application, you would use an EventEmitter or a service
     console.log('Selected car:', carId);
 
-    // You could also highlight the marker
+    // Focus on the selected car
+    this.focusOnCar(carId);
+  }
+
+  /**
+   * Focus the map on a specific car
+   */
+  public focusOnCar(carId: string): void {
     const marker = this.markers.get(carId);
     if (marker) {
+      // Zoom to the marker
+      this.map.setView(marker.getLatLng(), 16);
+
+      // Open the popup
       marker.openPopup();
+
+      // Highlight the marker (you could add additional styling here)
+      this.selectedCarId.set(carId);
+
+      // Manually trigger change detection
+      this.cdr.detectChanges();
     }
   }
 

@@ -2,7 +2,6 @@ import { Injectable, signal, computed } from '@angular/core';
 import { Car, CarStatus } from '../models/car.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap, catchError } from 'rxjs';
-import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'

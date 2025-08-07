@@ -12,7 +12,7 @@ export class MapService {
   // Custom marker icons based on car status
   private markerIcons: Record<CarStatus, L.Icon> = {
     [CarStatus.AVAILABLE]: this.createIcon('green'),
-    [CarStatus.RENTED]: this.createIcon('blue'),
+    [CarStatus.RENTED]: this.createIcon('red'),
     [CarStatus.MAINTENANCE]: this.createIcon('orange'),
     [CarStatus.INACTIVE]: this.createIcon('gray')
   };
