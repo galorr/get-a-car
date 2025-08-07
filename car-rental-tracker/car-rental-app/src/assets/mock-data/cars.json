@@ -1,0 +1,112 @@
+[
+  {
+    "id": "car-001",
+    "name": "Toyota Camry",
+    "latitude": 51.505,
+    "longitude": -0.09,
+    "status": "available",
+    "model": "Camry",
+    "year": 2022,
+    "licensePlate": "ABC-1234",
+    "lastUpdated": "2025-08-07T04:00:00.000Z"
+  },
+  {
+    "id": "car-002",
+    "name": "Honda Civic",
+    "latitude": 51.51,
+    "longitude": -0.1,
+    "status": "rented",
+    "model": "Civic",
+    "year": 2021,
+    "licensePlate": "XYZ-5678",
+    "lastUpdated": "2025-08-07T04:15:00.000Z"
+  },
+  {
+    "id": "car-003",
+    "name": "Ford Mustang",
+    "latitude": 51.515,
+    "longitude": -0.08,
+    "status": "available",
+    "model": "Mustang GT",
+    "year": 2023,
+    "licensePlate": "MUS-2023",
+    "lastUpdated": "2025-08-07T04:30:00.000Z"
+  },
+  {
+    "id": "car-004",
+    "name": "Tesla Model 3",
+    "latitude": 51.52,
+    "longitude": -0.11,
+    "status": "maintenance",
+    "model": "Model 3",
+    "year": 2022,
+    "licensePlate": "TSL-3000",
+    "lastUpdated": "2025-08-07T03:45:00.000Z"
+  },
+  {
+    "id": "car-005",
+    "name": "BMW X5",
+    "latitude": 51.5,
+    "longitude": -0.12,
+    "status": "available",
+    "model": "X5",
+    "year": 2021,
+    "licensePlate": "BMW-X505",
+    "lastUpdated": "2025-08-07T04:45:00.000Z"
+  },
+  {
+    "id": "car-006",
+    "name": "Audi A4",
+    "latitude": 51.495,
+    "longitude": -0.09,
+    "status": "rented",
+    "model": "A4",
+    "year": 2022,
+    "licensePlate": "AUD-4444",
+    "lastUpdated": "2025-08-07T05:00:00.000Z"
+  },
+  {
+    "id": "car-007",
+    "name": "Mercedes C-Class",
+    "latitude": 51.51,
+    "longitude": -0.085,
+    "status": "available",
+    "model": "C300",
+    "year": 2023,
+    "licensePlate": "MRC-3000",
+    "lastUpdated": "2025-08-07T05:15:00.000Z"
+  },
+  {
+    "id": "car-008",
+    "name": "Hyundai Sonata",
+    "latitude": 51.525,
+    "longitude": -0.095,
+    "status": "inactive",
+    "model": "Sonata",
+    "year": 2020,
+    "licensePlate": "HYN-2020",
+    "lastUpdated": "2025-08-07T03:30:00.000Z"
+  },
+  {
+    "id": "car-009",
+    "name": "Nissan Altima",
+    "latitude": 51.515,
+    "longitude": -0.105,
+    "status": "available",
+    "model": "Altima",
+    "year": 2021,
+    "licensePlate": "NSN-2121",
+    "lastUpdated": "2025-08-07T04:20:00.000Z"
+  },
+  {
+    "id": "car-010",
+    "name": "Chevrolet Malibu",
+    "latitude": 51.505,
+    "longitude": -0.115,
+    "status": "rented",
+    "model": "Malibu",
+    "year": 2022,
+    "licensePlate": "CHV-1010",
+    "lastUpdated": "2025-08-07T05:30:00.000Z"
+  }
+]

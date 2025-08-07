@@ -1,0 +1,107 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.grid-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  transition: transform 0.3s ease;
+
+  &.collapsed {
+    transform: translateY(calc(100% - 50px));
+  }
+}
+
+.grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  z-index: 1;
+}
+
+.search-container {
+  flex: 1;
+
+  input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: #3f51b5;
+      box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+    }
+  }
+}
+
+.toggle-button {
+  margin-left: 8px;
+  padding: 8px 12px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #303f9f;
+  }
+}
+
+.grid-content {
+  flex: 1;
+  overflow: hidden;
+
+  ag-grid-angular {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// AG Grid theme customization
+:global {
+  .ag-theme-alpine {
+    --ag-header-background-color: #f0f0f0;
+    --ag-header-foreground-color: #333;
+    --ag-header-cell-hover-background-color: #e0e0e0;
+    --ag-row-hover-color: #f8f8f8;
+    --ag-selected-row-background-color: rgba(63, 81, 181, 0.1);
+
+    .ag-header-cell {
+      font-weight: 600;
+    }
+
+    .ag-row-selected {
+      background-color: rgba(63, 81, 181, 0.2);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .grid-header {
+    padding: 6px;
+  }
+
+  .search-container input {
+    padding: 6px;
+    font-size: 13px;
+  }
+
+  .toggle-button {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}

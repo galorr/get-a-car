@@ -1,0 +1,41 @@
+<div class="search-container">
+  <div class="search-input-container">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search cars by name, ID, or status..."
+      [value]="searchTerm()"
+      (input)="onSearch($event)"
+    >
+    <button
+      *ngIf="searchTerm()"
+      class="clear-button"
+      (click)="clearSearch()"
+      aria-label="Clear search"
+    >
+      ×
+    </button>
+  </div>
+
+  <div class="search-results" *ngIf="showResults() && searchResults().length > 0">
+    <div class="results-header">
+      <span>Search Results ({{ searchResults().length }})</span>
+      <button class="close-button" (click)="closeResults()">×</button>
+    </div>
+    <ul class="results-list">
+      <li *ngFor="let car of searchResults()" (click)="selectCar(car)">
+        <div class="car-item">
+          <div class="car-name">{{ car.name }}</div>
+          <div class="car-details">
+            <span class="car-id">ID: {{ car.id }}</span>
+            <span class="car-status" [class]="car.status">{{ car.status }}</span>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="no-results" *ngIf="showResults() && searchResults().length === 0 && searchTerm()">
+    <p>No cars found matching "{{ searchTerm() }}"</p>
+  </div>
+</div>
