@@ -1,0 +1,50 @@
+<div class="app-container">
+  <!-- Loading Indicator -->
+  @if (isLoading()) {
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Loading car data...</p>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (loadError()) {
+    <div class="error-overlay">
+      <p>Error: {{ loadError() }}</p>
+      <button (click)="retryLoading()">Retry</button>
+    </div>
+  }
+
+  <!-- Map Component (Fullscreen) -->
+  <app-map [selectedCar]="selectedCar()"></app-map>
+
+  <!-- Top Search Bar -->
+  <div class="search-bar">
+    <app-search
+      (carSelected)="onCarSelected($event)"
+      (search)="onSearch($event)">
+    </app-search>
+  </div>
+
+  <!-- Side Navigation Panel -->
+  @if (showSideNav()) {
+    <app-side-nav
+      [selectedCar]="selectedCar()"
+      (close)="onSideNavClose()">
+    </app-side-nav>
+  }
+
+  <!-- Car Grid (Overlay) with Deferred Loading -->
+  <div class="grid-container" [class.collapsed]="isGridCollapsed()">
+    @defer {
+      <app-car-grid
+        (toggleGrid)="toggleGrid($event)"
+        (carSelected)="onCarSelected($event)">
+      </app-car-grid>
+    } @placeholder {
+      <div class="grid-placeholder">Car grid will load when visible</div>
+    } @loading {
+      <div class="grid-loading">Loading car grid...</div>
+    }
+  </div>
+</div>

@@ -1,9 +1,9 @@
-import { Component, inject, signal, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { MapComponent } from './components/map/map.component';
 import { CarGridComponent } from './components/car-grid/car-grid.component';
-import { RegistrationComponent } from './components/registration/registration.component';
+import { SideNavComponent } from './components/side-nav/side-nav.component';
 import { SearchComponent } from './components/search/search.component';
 import { CarDataService } from './services/car-data.service';
 import { Car } from './models/car.model';
@@ -16,41 +16,56 @@ import { Car } from './models/car.model';
     RouterOutlet,
     MapComponent,
     CarGridComponent,
-    RegistrationComponent,
+    SideNavComponent,
     SearchComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.scss']
 })
 export class AppComponent {
-  // Component state
-  showRegistration = signal(true);
+  // Component state using signals
+  showSideNav = signal(true);
   isGridCollapsed = signal(false);
   selectedCar = signal<Car | null>(null);
+  isLoading = signal(false);
+  loadError = signal<string | null>(null);
 
   // Services
   private carDataService = inject(CarDataService);
-  private cdr = inject(ChangeDetectorRef);
 
   constructor() {
-    // Initialize the application
-    this.initializeApp();
+    // Initialize the application using effect instead of subscription
+    effect(() => {
+      this.initializeApp();
+    });
   }
 
   /**
    * Initialize the application
    */
   private initializeApp(): void {
-    // Load initial car data
-    this.carDataService.loadCars().subscribe({
-      next: () => {
+    // Load initial car data using signals
+    this.isLoading.set(true);
+    this.loadError.set(null);
+
+    // Use the effect to handle the async operation
+    this.carDataService.loadCars();
+
+    // Create an effect to handle loading state changes
+    effect(() => {
+      const cars = this.carDataService.allCars();
+      if (cars.length > 0) {
+        this.isLoading.set(false);
         console.log('Car data loaded successfully');
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error loading car data:', error);
       }
     });
+  }
+
+  /**
+   * Public method to retry loading data
+   */
+  retryLoading(): void {
+    this.initializeApp();
   }
 
   /**
@@ -61,10 +76,10 @@ export class AppComponent {
   }
 
   /**
-   * Toggle registration panel visibility
+   * Toggle side nav panel visibility
    */
-  toggleRegistration(): void {
-    this.showRegistration.update(value => !value);
+  toggleSideNav(): void {
+    this.showSideNav.update(value => !value);
   }
 
   /**
@@ -73,9 +88,9 @@ export class AppComponent {
   onCarSelected(car: Car): void {
     this.selectedCar.set(car);
 
-    // Show registration panel if hidden
-    if (!this.showRegistration()) {
-      this.showRegistration.set(true);
+    // Show side nav panel if hidden
+    if (!this.showSideNav()) {
+      this.showSideNav.set(true);
     }
   }
 
@@ -88,9 +103,9 @@ export class AppComponent {
   }
 
   /**
-   * Close registration panel
+   * Close side nav panel
    */
-  onRegistrationClose(): void {
-    this.showRegistration.set(false);
+  onSideNavClose(): void {
+    this.showSideNav.set(false);
   }
 }

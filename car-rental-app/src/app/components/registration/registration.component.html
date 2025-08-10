@@ -1,0 +1,83 @@
+<div class="registration-panel"
+     cdkDrag
+     [cdkDragDisabled]="!isDraggable()"
+     [class.minimized]="isMinimized()">
+  <div class="panel-header" cdkDragHandle>
+    <h3>Car Registration</h3>
+    <div class="header-actions">
+      <button class="minimize-button" (click)="toggleMinimize()">
+        {{ isMinimized() ? 'Expand' : 'Minimize' }}
+      </button>
+      <button class="close-button" (click)="closePanel()">×</button>
+    </div>
+  </div>
+
+  @if (!isMinimized()) {
+    <div class="panel-content">
+      <!-- Success message -->
+      @if (submissionSuccess()) {
+        <div class="success-message">
+          <p>Registration successful! You are now tracking this car.</p>
+        </div>
+      }
+
+      <!-- Error message -->
+      @if (submissionError()) {
+        <div class="error-message">
+          <p>{{ submissionError() }}</p>
+        </div>
+      }
+
+      <!-- Registration form -->
+      @if (!submissionSuccess()) {
+        <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" [formControl]="name">
+            @if (formErrors()['name']) {
+              <div class="error">{{ formErrors()['name'] }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" [formControl]="email">
+            @if (formErrors()['email']) {
+              <div class="error">{{ formErrors()['email'] }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone (optional)</label>
+            <input type="tel" id="phone" [formControl]="phone">
+          </div>
+
+          @if (hasSelectedCar()) {
+            <div class="form-group">
+              <label>Selected Car</label>
+              <div class="selected-car-info">
+                <p><strong>{{ selectedCar()?.name }}</strong></p>
+                <p>ID: {{ selectedCar()?.id }}</p>
+                <p>Status: {{ selectedCar()?.status }}</p>
+              </div>
+            </div>
+          }
+
+          <div class="form-actions">
+            <button type="submit"
+                    [disabled]="!isFormValid() || !hasSelectedCar() || isSubmitting()">
+              {{ isSubmitting() ? 'Registering...' : 'Register to Track' }}
+            </button>
+          </div>
+        </form>
+      }
+
+      <!-- No car selected message -->
+      @if (!hasSelectedCar() && !submissionSuccess()) {
+        <div class="no-car-selected">
+          <p>Please select a car from the map or grid to register for tracking.</p>
+        </div>
+      }
+    </div>
+  }
+</div>

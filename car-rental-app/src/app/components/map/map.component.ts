@@ -1,9 +1,10 @@
-import { Component, AfterViewInit, OnDestroy, inject, signal, effect, ChangeDetectorRef, HostListener, Input } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, inject, signal, computed, effect, HostListener, input, output, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { CarDataService } from '../../services/car-data.service';
 import { MapService } from '../../services/map.service';
 import { Car, CarStatus } from '../../models/car.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-map',
@@ -16,45 +17,55 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private map!: L.Map;
   private markers = new Map<string, L.Marker>();
   private markerGroup!: L.LayerGroup;
+
+  // Signal state
   private selectedCarId = signal<string | null>(null);
 
-  // Input to receive selected car from parent component
-  @Input() set selectedCar(car: Car | null) {
-    if (car) {
-      this._selectedCar.set(car);
-    }
-  }
-  private _selectedCar = signal<Car | null>(null);
+  // Input to receive selected car from parent component using signal input
+  selectedCar = input<Car | null>(null);
 
-  private carDataService = inject(CarDataService);
-  private mapService = inject(MapService);
-  private cdr = inject(ChangeDetectorRef);
+  // Computed signal to check if a car is selected
+  hasSelectedCar = computed(() => !!this.selectedCar());
 
-  // Filter states
-  private statusFilters = {
+  // Filter states using signals
+  private statusFilters = signal({
     [CarStatus.AVAILABLE]: true,
     [CarStatus.RENTED]: true,
     [CarStatus.MAINTENANCE]: true,
     [CarStatus.INACTIVE]: true
-  };
+  });
 
-  ngAfterViewInit(): void {
-    // Initialize the map
-    this.initializeMap();
+  // Computed signal for filtered cars
+  filteredCars = computed(() => {
+    const filters = this.statusFilters();
+    return this.carDataService.allCars().filter(car => filters[car.status]);
+  });
 
+  // Services
+  private carDataService = inject(CarDataService);
+  private mapService = inject(MapService);
+
+  constructor() {
     // Subscribe to car data changes using signals
     effect(() => {
-      const cars = this.carDataService.allCars();
-      this.updateMarkers(cars);
+      const cars = this.filteredCars();
+      if (this.map && this.markerGroup) {
+        this.updateMarkers(cars);
+      }
     });
 
     // Effect to handle selected car changes
     effect(() => {
-      const car = this._selectedCar();
+      const car = this.selectedCar();
       if (car) {
         this.focusOnCar(car.id);
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    // Initialize the map
+    this.initializeMap();
   }
 
   ngOnDestroy(): void {
@@ -83,15 +94,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         checkbox.addEventListener('change', (event) => {
           const target = event.target as HTMLInputElement;
           const status = target.dataset['status'] as CarStatus;
-          this.statusFilters[status] = target.checked;
-          this.updateMarkerVisibility();
-          this.cdr.detectChanges();
+
+          // Update status filters using signal
+          this.statusFilters.update(filters => ({
+            ...filters,
+            [status]: target.checked
+          }));
         });
       });
     }, 100);
 
     // Load initial car data
-    this.carDataService.loadCars().subscribe();
+    this.carDataService.loadCars();
   }
 
   private updateMarkers(cars: Car[]): void {
@@ -123,7 +137,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             if (trackButton) {
               trackButton.addEventListener('click', () => {
                 this.selectCar(car.id);
-                this.cdr.detectChanges();
               });
             }
           }, 10);
@@ -131,29 +144,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
     });
 
-    // Update marker visibility based on filters
-    this.updateMarkerVisibility();
-
     // Fit map to markers if needed
     if (cars.length > 0 && this.markers.size > 0) {
       this.mapService.fitMapToMarkers(this.map, Array.from(this.markers.values()));
     }
-
-    // Manually trigger change detection
-    this.cdr.detectChanges();
-  }
-
-  private updateMarkerVisibility(): void {
-    // Clear all markers from the group
-    this.markerGroup.clearLayers();
-
-    // Add only the markers that match the filter
-    this.markers.forEach((marker, id) => {
-      const car = this.carDataService.getCar(id);
-      if (car && this.statusFilters[car.status]) {
-        this.markerGroup.addLayer(marker);
-      }
-    });
   }
 
   private selectCar(carId: string): void {
@@ -181,9 +175,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
       // Highlight the marker (you could add additional styling here)
       this.selectedCarId.set(carId);
-
-      // Manually trigger change detection
-      this.cdr.detectChanges();
     }
   }
 
