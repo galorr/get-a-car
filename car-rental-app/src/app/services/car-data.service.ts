@@ -42,8 +42,8 @@ export class CarDataService {
   private http = inject(HttpClient);
 
   constructor() {
-    // Load initial data
-    this.loadCars();
+    // Constructor no longer loads cars to prevent double initialization
+    // Cars are loaded by AppComponent.initializeApp() instead
   }
 
   /**

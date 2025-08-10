@@ -1,6 +1,5 @@
 import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
 import { MapComponent } from './components/map/map.component';
 import { CarGridComponent } from './components/car-grid/car-grid.component';
 import { SideNavComponent } from './components/side-nav/side-nav.component';
@@ -13,7 +12,6 @@ import { Car } from './models/car.model';
   standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet,
     MapComponent,
     CarGridComponent,
     SideNavComponent,

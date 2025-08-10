@@ -34,17 +34,10 @@
     </app-side-nav>
   }
 
-  <!-- Car Grid (Overlay) with Deferred Loading -->
   <div class="grid-container" [class.collapsed]="isGridCollapsed()">
-    @defer {
       <app-car-grid
         (toggleGrid)="toggleGrid($event)"
         (carSelected)="onCarSelected($event)">
       </app-car-grid>
-    } @placeholder {
-      <div class="grid-placeholder">Car grid will load when visible</div>
-    } @loading {
-      <div class="grid-loading">Loading car grid...</div>
-    }
   </div>
 </div>

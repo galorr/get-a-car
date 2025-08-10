@@ -42,7 +42,8 @@ export class CarGridComponent {
 
   // Grid options
   gridOptions: GridOptions = {
-    rowSelection: 'single',
+    rowSelection: { mode: 'singleRow' }, // Updated to object format for AG Grid v32.2.1+
+    theme: 'legacy', // Use legacy theme to avoid conflicts with CSS imports
     getRowId: (params: any) => params.data.id
   };
 
