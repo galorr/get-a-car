@@ -1,0 +1,30 @@
+{
+  "data": {
+    "id": "user-016",
+    "name": "Michael Brown",
+    "email": "michael.brown@example.com",
+    "phone": "555-555-5555",
+    "registeredCars": [],
+    "role": "customer",
+    "status": "active",
+    "address": {
+      "street": "123 New Street",
+      "city": "London",
+      "state": "Greater London",
+      "zipCode": "SW1A 2AA",
+      "country": "United Kingdom"
+    },
+    "driverLicense": {
+      "number": "DL98765432",
+      "state": "Greater London",
+      "expirationDate": "2028-06-20T00:00:00Z",
+      "imageUrl": "assets/images/licenses/license-016.jpg"
+    },
+    "paymentMethods": [],
+    "createdAt": "2025-08-10T19:55:00Z",
+    "lastLogin": "2025-08-10T19:55:00Z"
+  },
+  "success": true,
+  "message": "User registered successfully",
+  "timestamp": "2025-08-10T19:55:00Z"
+}

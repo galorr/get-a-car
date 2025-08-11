@@ -1,0 +1,68 @@
+<div class="side-nav-container" [class.collapsed]="isCollapsed()">
+  <!-- Toggle Button -->
+  <button class="nav-toggle" (click)="toggleNav()">
+    <span class="material-icons">
+      {{ isCollapsed() ? 'menu' : 'close' }}
+    </span>
+  </button>
+  
+  <!-- Logo and App Name -->
+  <div class="nav-header">
+    <div class="logo">
+      <span class="material-icons">directions_car</span>
+    </div>
+    @if (!isCollapsed()) {
+      <h1 class="app-name">Car-2-Rent</h1>
+    }
+  </div>
+  
+  <!-- Navigation Links -->
+  <nav class="nav-links">
+    @for (link of navLinks; track link.path) {
+      <a 
+        [routerLink]="link.path" 
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: link.path === '/map'}"
+        class="nav-link"
+        (click)="navigate(link.path)"
+      >
+        <span class="material-icons">{{ link.icon }}</span>
+        @if (!isCollapsed()) {
+          <span class="link-text">{{ link.label }}</span>
+        }
+      </a>
+    }
+  </nav>
+  
+  <!-- Selected Car Info (if any) -->
+  @if (selectedCar() && !isCollapsed()) {
+    <div class="selected-car">
+      <h3>Selected Car</h3>
+      <div class="car-info">
+        <p class="car-name">{{ selectedCar()?.name }}</p>
+        <p class="car-id">ID: {{ selectedCar()?.id }}</p>
+        <p class="car-status">
+          Status: 
+          <span class="status-badge {{ selectedCar()?.status }}">
+            {{ selectedCar()?.status }}
+          </span>
+        </p>
+        <button 
+          class="view-car-btn"
+          (click)="navigateToCar(selectedCar()?.id || '')"
+        >
+          View on Map
+        </button>
+      </div>
+    </div>
+  }
+  
+  <!-- Footer -->
+  <div class="nav-footer">
+    @if (!isCollapsed()) {
+      <p>&copy; 2025 Car-2-Rent</p>
+    } @else {
+      <span class="material-icons">copyright</span>
+    }
+  </div>
+</div>

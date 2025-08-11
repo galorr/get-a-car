@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, inject, signal, computed, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MapComponent } from './components/map/map.component';
 import { CarGridComponent } from './components/car-grid/car-grid.component';
@@ -25,16 +25,16 @@ export class AppComponent {
   showSideNav = signal(true);
   isGridCollapsed = signal(false);
   selectedCar = signal<Car | null>(null);
-  isLoading = signal(false);
+  isLoading = signal(true);
   loadError = signal<string | null>(null);
 
   // Services
   private carDataService = inject(CarDataService);
+private cdr = inject(ChangeDetectorRef);
 
   constructor() {
-    // Initialize the application using effect instead of subscription
     effect(() => {
-      this.initializeApp();
+//  this.initializeApp();
     });
   }
 
@@ -42,19 +42,24 @@ export class AppComponent {
    * Initialize the application
    */
   private initializeApp(): void {
-    // Load initial car data using signals
+     // Load initial car data using signals
     this.isLoading.set(true);
     this.loadError.set(null);
 
-    // Use the effect to handle the async operation
-    this.carDataService.loadCars();
+     // Load initial car data
+    this.carDataService.loadCars().subscribe({
+      next: () => {
 
     // Create an effect to handle loading state changes
-    effect(() => {
       const cars = this.carDataService.allCars();
       if (cars.length > 0) {
         this.isLoading.set(false);
         console.log('Car data loaded successfully');
+        this.cdr.detectChanges();
+      }
+    },
+      error: (error: any) => {
+        console.error('Error loading car data:', error);
       }
     });
   }

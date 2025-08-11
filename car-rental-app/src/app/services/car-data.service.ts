@@ -1,7 +1,7 @@
-import { Injectable, signal, computed, effect, inject } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Car, CarStatus } from '../models/car.model';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { Observable, of, tap, catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,14 +9,6 @@ import { catchError, of } from 'rxjs';
 export class CarDataService {
   // Signal for the collection of cars
   private carsSignal = signal<Car[]>([]);
-
-  // Loading and error state signals
-  private loadingSignal = signal<boolean>(false);
-  private errorSignal = signal<string | null>(null);
-
-  // Public signals for component consumption
-  public isLoading = computed(() => this.loadingSignal());
-  public error = computed(() => this.errorSignal());
 
   // Computed signals for filtered cars
   public availableCars = computed(() =>
@@ -38,82 +30,68 @@ export class CarDataService {
   // Expose all cars as a computed signal
   public allCars = computed(() => this.carsSignal());
 
-  // Inject HttpClient
-  private http = inject(HttpClient);
-
-  constructor() {
-    // Constructor no longer loads cars to prevent double initialization
-    // Cars are loaded by AppComponent.initializeApp() instead
+  constructor(private http: HttpClient) {
+    // Load initial data
+    this.loadCars();
   }
 
   /**
-   * Load cars from the API or mock data using HttpClient with Signals
+   * Load cars from the API or mock data
    */
-  loadCars(): void {
-    this.loadingSignal.set(true);
-    this.errorSignal.set(null);
-
-    this.http.get<Car[]>('assets/mock-data/cars.json')
-      .pipe(
-        catchError(error => {
-          console.error('Error loading car data:', error);
-          this.errorSignal.set(error.message || 'Failed to load car data');
-
-          // Provide fallback data
-          const fallbackCars: Car[] = [
-            {
-              id: 'car-001',
-              name: 'Toyota Camry',
-              latitude: 51.505,
-              longitude: -0.09,
-              status: CarStatus.AVAILABLE,
-              model: 'Camry',
-              year: 2022,
-              licensePlate: 'ABC-1234',
-              lastUpdated: new Date()
-            },
-            {
-              id: 'car-002',
-              name: 'Honda Civic',
-              latitude: 51.51,
-              longitude: -0.1,
-              status: CarStatus.RENTED,
-              model: 'Civic',
-              year: 2021,
-              licensePlate: 'XYZ-5678',
-              lastUpdated: new Date()
-            },
-            {
-              id: 'car-003',
-              name: 'Ford Mustang',
-              latitude: 51.515,
-              longitude: -0.08,
-              status: CarStatus.AVAILABLE,
-              model: 'Mustang GT',
-              year: 2023,
-              licensePlate: 'MUS-2023',
-              lastUpdated: new Date()
-            }
-          ];
-          return of(fallbackCars);
-        })
-      )
-      .subscribe({
-        next: (cars) => {
-          // Convert string dates to Date objects
-          const processedCars = cars.map(car => ({
-            ...car,
-            lastUpdated: new Date(car.lastUpdated)
-          }));
-
-          this.updateCars(processedCars);
-          this.loadingSignal.set(false);
-        },
-        error: (error) => {
-          this.errorSignal.set(error.message || 'Failed to load car data');
-          this.loadingSignal.set(false);
-        }
-      });
+  loadCars(): Observable<Car[]> {
+    // In a real application, this would call an API
+    // For development, we'll use mock data
+    return this.http.get<Car[]>('assets/mock-data/cars.json').pipe(
+      tap(cars => {
+        // Convert string dates to Date objects
+        const processedCars = cars.map(car => ({
+          ...car,
+          lastUpdated: new Date(car.lastUpdated)
+        }));
+        this.updateCars(processedCars);
+      }),
+      catchError(error => {
+        console.error('Error loading car data:', error);
+        // Provide fallback data
+        const fallbackCars: Car[] = [
+          {
+            id: 'car-001',
+            name: 'Toyota Camry',
+            latitude: 51.505,
+            longitude: -0.09,
+            status: CarStatus.AVAILABLE,
+            model: 'Camry',
+            year: 2022,
+            licensePlate: 'ABC-1234',
+            lastUpdated: new Date()
+          },
+          {
+            id: 'car-002',
+            name: 'Honda Civic',
+            latitude: 51.51,
+            longitude: -0.1,
+            status: CarStatus.RENTED,
+            model: 'Civic',
+            year: 2021,
+            licensePlate: 'XYZ-5678',
+            lastUpdated: new Date()
+          },
+          {
+            id: 'car-003',
+            name: 'Ford Mustang',
+            latitude: 51.515,
+            longitude: -0.08,
+            status: CarStatus.AVAILABLE,
+            model: 'Mustang GT',
+            year: 2023,
+            licensePlate: 'MUS-2023',
+            lastUpdated: new Date()
+          }
+        ];
+        this.updateCars(fallbackCars);
+        return of(fallbackCars);
+      })
+    );
   }
 
   /**

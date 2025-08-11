@@ -1,0 +1,258 @@
+.search-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 320px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  overflow: hidden;
+  transition: height 0.3s ease;
+  
+  &.expanded {
+    .search-content {
+      max-height: 400px;
+      opacity: 1;
+      display: block;
+    }
+    
+    .toggle-icon {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.search-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #3f51b5;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  
+  .search-icon {
+    margin-right: 8px;
+    font-size: 16px;
+  }
+  
+  span {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .toggle-icon {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+  }
+}
+
+.search-content {
+  padding: 16px;
+  max-height: 0;
+  opacity: 0;
+  overflow-y: auto;
+  display: none;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.search-input-container {
+  position: relative;
+  margin-bottom: 16px;
+  
+  input {
+    width: 100%;
+    padding: 8px 12px;
+    padding-right: 32px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    
+    &:focus {
+      outline: none;
+      border-color: #3f51b5;
+      box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+    }
+  }
+  
+  .clear-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 14px;
+    
+    &:hover {
+      color: #666;
+    }
+  }
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.recent-searches {
+  margin-bottom: 16px;
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .history-icon {
+      margin-right: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .search-term {
+      flex: 1;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    .remove-button {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      
+      &:hover {
+        color: #f44336;
+      }
+    }
+    
+    &:hover .remove-button {
+      opacity: 1;
+    }
+  }
+}
+
+.search-results {
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 8px;
+    background-color: #f5f5f5;
+    
+    &:hover {
+      background-color: #eee;
+    }
+    
+    .car-name {
+      font-weight: 500;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: #333;
+    }
+    
+    .car-details {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+      
+      .car-id {
+        font-size: 12px;
+        color: #666;
+        margin-right: 8px;
+      }
+    }
+    
+    .car-extra-info {
+      display: flex;
+      font-size: 12px;
+      color: #666;
+      
+      .car-model {
+        margin-right: 8px;
+      }
+      
+      .car-license {
+        font-family: monospace;
+      }
+    }
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: capitalize;
+  
+  &.available {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  &.rented {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+  
+  &.maintenance {
+    background-color: #fff3e0;
+    color: #ef6c00;
+  }
+  
+  &.inactive {
+    background-color: #f5f5f5;
+    color: #757575;
+  }
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  color: #666;
+  
+  .no-results-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+  
+  p {
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+  }
+}

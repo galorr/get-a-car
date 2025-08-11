@@ -1,0 +1,117 @@
+{
+  "data": {
+    "data": [
+      {
+        "id": "user-001",
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "phone": "555-123-4567",
+        "registeredCars": ["car-001", "car-004"],
+        "role": "customer",
+        "status": "active",
+        "address": {
+          "street": "123 Main Street",
+          "city": "London",
+          "state": "Greater London",
+          "zipCode": "SW1A 1AA",
+          "country": "United Kingdom"
+        },
+        "driverLicense": {
+          "number": "DL12345678",
+          "state": "Greater London",
+          "expirationDate": "2027-05-15T00:00:00Z",
+          "imageUrl": "assets/images/licenses/license-001.jpg"
+        },
+        "paymentMethods": [
+          {
+            "id": "pm-001",
+            "type": "credit_card",
+            "lastFour": "4242",
+            "expirationDate": "05/27",
+            "isDefault": true
+          },
+          {
+            "id": "pm-002",
+            "type": "paypal",
+            "isDefault": false
+          }
+        ],
+        "createdAt": "2024-01-15T10:30:00Z",
+        "lastLogin": "2025-08-09T14:25:00Z"
+      },
+      {
+        "id": "user-002",
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com",
+        "phone": "555-987-6543",
+        "registeredCars": ["car-002", "car-007", "car-013"],
+        "role": "admin",
+        "status": "active",
+        "address": {
+          "street": "456 Park Avenue",
+          "city": "London",
+          "state": "Greater London",
+          "zipCode": "E1 6AN",
+          "country": "United Kingdom"
+        },
+        "driverLicense": {
+          "number": "DL87654321",
+          "state": "Greater London",
+          "expirationDate": "2028-08-22T00:00:00Z",
+          "imageUrl": "assets/images/licenses/license-002.jpg"
+        },
+        "paymentMethods": [
+          {
+            "id": "pm-003",
+            "type": "credit_card",
+            "lastFour": "1234",
+            "expirationDate": "09/28",
+            "isDefault": true
+          }
+        ],
+        "createdAt": "2023-11-05T09:15:00Z",
+        "lastLogin": "2025-08-10T08:45:00Z"
+      },
+      {
+        "id": "user-003",
+        "name": "Bob Johnson",
+        "email": "bob.johnson@example.com",
+        "phone": "555-234-5678",
+        "registeredCars": ["car-009"],
+        "role": "customer",
+        "status": "inactive",
+        "address": {
+          "street": "789 Oak Street",
+          "city": "Manchester",
+          "state": "Greater Manchester",
+          "zipCode": "M1 1AE",
+          "country": "United Kingdom"
+        },
+        "driverLicense": {
+          "number": "DL23456789",
+          "state": "Greater Manchester",
+          "expirationDate": "2026-03-10T00:00:00Z",
+          "imageUrl": "assets/images/licenses/license-003.jpg"
+        },
+        "paymentMethods": [
+          {
+            "id": "pm-004",
+            "type": "debit_card",
+            "lastFour": "9876",
+            "expirationDate": "04/26",
+            "isDefault": true
+          }
+        ],
+        "createdAt": "2024-02-20T14:45:00Z",
+        "lastLogin": "2025-06-15T11:30:00Z"
+      }
+    ],
+    "total": 15,
+    "page": 1,
+    "limit": 3,
+    "totalPages": 5
+  },
+  "success": true,
+  "message": "Users retrieved successfully",
+  "timestamp": "2025-08-10T19:45:00Z"
+}

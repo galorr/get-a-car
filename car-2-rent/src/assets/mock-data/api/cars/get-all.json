@@ -1,0 +1,67 @@
+{
+  "data": {
+    "data": [
+      {
+        "id": "car-001",
+        "name": "Toyota Corolla",
+        "latitude": 51.505,
+        "longitude": -0.09,
+        "status": "available",
+        "model": "Corolla",
+        "year": 2022,
+        "licensePlate": "ABC-1234",
+        "lastUpdated": "2025-08-10T12:00:00Z",
+        "type": "sedan",
+        "fuelLevel": 85,
+        "mileage": 12500,
+        "color": "Silver",
+        "features": ["Bluetooth", "Backup Camera", "Cruise Control"],
+        "rentalRate": 45,
+        "imageUrl": "assets/images/cars/toyota-corolla.jpg"
+      },
+      {
+        "id": "car-002",
+        "name": "Honda Civic",
+        "latitude": 51.51,
+        "longitude": -0.1,
+        "status": "rented",
+        "model": "Civic",
+        "year": 2023,
+        "licensePlate": "DEF-5678",
+        "lastUpdated": "2025-08-10T12:30:00Z",
+        "type": "sedan",
+        "fuelLevel": 72,
+        "mileage": 8750,
+        "color": "Blue",
+        "features": ["Apple CarPlay", "Android Auto", "Lane Assist"],
+        "rentalRate": 48,
+        "imageUrl": "assets/images/cars/honda-civic.jpg"
+      },
+      {
+        "id": "car-003",
+        "name": "Ford Focus",
+        "latitude": 51.515,
+        "longitude": -0.08,
+        "status": "maintenance",
+        "model": "Focus",
+        "year": 2021,
+        "licensePlate": "GHI-9012",
+        "lastUpdated": "2025-08-10T11:45:00Z",
+        "type": "hatchback",
+        "fuelLevel": 45,
+        "mileage": 24680,
+        "color": "Red",
+        "features": ["Bluetooth", "Heated Seats", "Keyless Entry"],
+        "rentalRate": 42,
+        "imageUrl": "assets/images/cars/ford-focus.jpg"
+      }
+    ],
+    "total": 20,
+    "page": 1,
+    "limit": 3,
+    "totalPages": 7
+  },
+  "success": true,
+  "message": "Cars retrieved successfully",
+  "timestamp": "2025-08-10T19:10:00Z"
+}

@@ -1,0 +1,43 @@
+{
+  "data": {
+    "id": "user-001",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "555-123-4567",
+    "registeredCars": ["car-001", "car-004"],
+    "role": "customer",
+    "status": "active",
+    "address": {
+      "street": "123 Main Street",
+      "city": "London",
+      "state": "Greater London",
+      "zipCode": "SW1A 1AA",
+      "country": "United Kingdom"
+    },
+    "driverLicense": {
+      "number": "DL12345678",
+      "state": "Greater London",
+      "expirationDate": "2027-05-15T00:00:00Z",
+      "imageUrl": "assets/images/licenses/license-001.jpg"
+    },
+    "paymentMethods": [
+      {
+        "id": "pm-001",
+        "type": "credit_card",
+        "lastFour": "4242",
+        "expirationDate": "05/27",
+        "isDefault": true
+      },
+      {
+        "id": "pm-002",
+        "type": "paypal",
+        "isDefault": false
+      }
+    ],
+    "createdAt": "2024-01-15T10:30:00Z",
+    "lastLogin": "2025-08-09T14:25:00Z"
+  },
+  "success": true,
+  "message": "User retrieved successfully",
+  "timestamp": "2025-08-10T19:50:00Z"
+}

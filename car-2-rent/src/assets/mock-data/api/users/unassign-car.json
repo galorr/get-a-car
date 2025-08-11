@@ -1,0 +1,10 @@
+{
+  "data": {
+    "userId": "user-001",
+    "carId": "car-004",
+    "success": true
+  },
+  "success": true,
+  "message": "Car unassigned from user successfully",
+  "timestamp": "2025-08-10T20:05:00Z"
+}

@@ -1,0 +1,121 @@
+<div class="registration-panel"
+     [class.minimized]="isMinimized()"
+     [style.left.px]="position().x"
+     [style.top.px]="position().y"
+     (mousedown)="startDrag($event)">
+  
+  <div class="panel-header">
+    <h3>Car Registration</h3>
+    <button class="minimize-button" (click)="toggleMinimize()">
+      {{ isMinimized() ? 'Expand' : 'Minimize' }}
+    </button>
+  </div>
+  
+  <div class="panel-content">
+    <!-- User Registration Form -->
+    @if (!currentUser()) {
+      <div class="registration-form">
+        <h4>Register New User</h4>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input
+            type="text"
+            id="name"
+            [(ngModel)]="newUser.name"
+            [class.error]="formErrors().name"
+            required>
+          @if (formErrors().name) {
+            <div class="error-message">{{ formErrors().name }}</div>
+          }
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="newUser.email"
+            [class.error]="formErrors().email"
+            required>
+          @if (formErrors().email) {
+            <div class="error-message">{{ formErrors().email }}</div>
+          }
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone (optional)</label>
+          <input type="tel" id="phone" [(ngModel)]="newUser.phone">
+        </div>
+        <button class="register-button" (click)="registerUser()">Register</button>
+      </div>
+    }
+    
+    <!-- User Information and Car Registration -->
+    @if (currentUser()) {
+      <div class="user-info">
+        <h4>Welcome, {{ currentUser()?.name }}</h4>
+        <p class="user-email">{{ currentUser()?.email }}</p>
+        
+        <!-- Selected Car Information -->
+        @if (selectedCar()) {
+          <div class="selected-car">
+            <h4>Selected Car</h4>
+            <div class="car-details">
+              <div class="car-name">{{ selectedCar()?.name }}</div>
+              <div class="car-status">
+                <span class="status-badge {{ getStatusClass(selectedCar()?.status) }}">
+                  {{ selectedCar()?.status }}
+                </span>
+              </div>
+              <div class="car-info">
+                <p><strong>ID:</strong> {{ selectedCar()?.id }}</p>
+                @if (selectedCar()?.model) {
+                  <p><strong>Model:</strong> {{ selectedCar()?.model }}</p>
+                }
+                @if (selectedCar()?.year) {
+                  <p><strong>Year:</strong> {{ selectedCar()?.year }}</p>
+                }
+                @if (selectedCar()?.licensePlate) {
+                  <p><strong>License:</strong> {{ selectedCar()?.licensePlate }}</p>
+                }
+                <p><strong>Location:</strong> {{ selectedCar()?.latitude.toFixed(6) }}, {{ selectedCar()?.longitude.toFixed(6) }}</p>
+              </div>
+            </div>
+            
+            @if (!isCarRegistered(selectedCar()?.id || '')) {
+              <button class="register-button" (click)="registerCarToCurrentUser()">
+                Register This Car
+              </button>
+            } @else {
+              <p class="registered-message">This car is already registered to you.</p>
+            }
+          </div>
+        }
+        
+        <!-- Registered Cars List -->
+        <div class="registered-cars">
+          <h4>Your Registered Cars</h4>
+          @if (currentUser()?.registeredCars.length === 0) {
+            <p class="no-cars">No cars registered yet.</p>
+          } @else {
+            <ul class="car-list">
+              @for (carId of currentUser()?.registeredCars; track carId) {
+                <li (click)="selectCar(carId)">
+                  <div class="car-list-item">
+                    <span class="car-name">{{ getCarById(carId)?.name || 'Unknown Car' }}</span>
+                    @if (getCarById(carId)?.status) {
+                      <span class="status-badge small {{ getStatusClass(getCarById(carId)?.status) }}">
+                        {{ getCarById(carId)?.status }}
+                      </span>
+                    }
+                    <button class="unregister-button" (click)="unregisterCar(carId); $event.stopPropagation()">
+                      Unregister
+                    </button>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
