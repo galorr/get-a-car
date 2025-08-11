@@ -3,14 +3,14 @@
      [style.left.px]="position().x"
      [style.top.px]="position().y"
      (mousedown)="startDrag($event)">
-  
+
   <div class="panel-header">
     <h3>Car Registration</h3>
     <button class="minimize-button" (click)="toggleMinimize()">
       {{ isMinimized() ? 'Expand' : 'Minimize' }}
     </button>
   </div>
-  
+
   <div class="panel-content">
     <!-- User Registration Form -->
     @if (!currentUser()) {
@@ -47,13 +47,13 @@
         <button class="register-button" (click)="registerUser()">Register</button>
       </div>
     }
-    
+
     <!-- User Information and Car Registration -->
     @if (currentUser()) {
       <div class="user-info">
         <h4>Welcome, {{ currentUser()?.name }}</h4>
         <p class="user-email">{{ currentUser()?.email }}</p>
-        
+
         <!-- Selected Car Information -->
         @if (selectedCar()) {
           <div class="selected-car">
@@ -76,10 +76,10 @@
                 @if (selectedCar()?.licensePlate) {
                   <p><strong>License:</strong> {{ selectedCar()?.licensePlate }}</p>
                 }
-                <p><strong>Location:</strong> {{ selectedCar()?.latitude.toFixed(6) }}, {{ selectedCar()?.longitude.toFixed(6) }}</p>
+                <p><strong>Location:</strong> {{ selectedCar()?.latitude?.toFixed(6) || '0.000000' }}, {{ selectedCar()?.longitude?.toFixed(6) || '0.000000' }}</p>
               </div>
             </div>
-            
+
             @if (!isCarRegistered(selectedCar()?.id || '')) {
               <button class="register-button" (click)="registerCarToCurrentUser()">
                 Register This Car
@@ -89,11 +89,11 @@
             }
           </div>
         }
-        
+
         <!-- Registered Cars List -->
         <div class="registered-cars">
           <h4>Your Registered Cars</h4>
-          @if (currentUser()?.registeredCars.length === 0) {
+          @if (currentUser()?.registeredCars?.length === 0) {
             <p class="no-cars">No cars registered yet.</p>
           } @else {
             <ul class="car-list">

@@ -4,18 +4,18 @@
     <span>Search Cars</span>
     <i class="toggle-icon">{{ isExpanded() ? '▼' : '▲' }}</i>
   </div>
-  
+
   <div class="search-content">
     <div class="search-input-container">
       <input
         type="text"
         placeholder="Search by name, ID, status..."
-        [(ngModel)]="searchTerm()"
-        (input)="search($any($event.target).value)"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="search($event)"
         autocomplete="off">
       <button class="clear-button" *ngIf="searchTerm()" (click)="clearSearch()">✕</button>
     </div>
-    
+
     <!-- Recent Searches -->
     @if (recentSearches().length > 0 && !searchTerm()) {
       <div class="recent-searches">
@@ -31,7 +31,7 @@
         </ul>
       </div>
     }
-    
+
     <!-- Search Results -->
     @if (searchResults().length > 0) {
       <div class="search-results">
@@ -59,7 +59,7 @@
         </ul>
       </div>
     }
-    
+
     <!-- No Results -->
     @if (searchTerm() && searchResults().length === 0) {
       <div class="no-results">

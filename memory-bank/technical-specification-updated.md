@@ -93,7 +93,7 @@ bootstrapApplication(AppComponent, {
   ...appConfig,
   providers: [
     ...appConfig.providers,
-    { provide: NgZone, useValue: new NoopNgZone() }
+    provideZonelessChangeDetection()
   ]
 }).catch(err => console.error(err));
 ```
