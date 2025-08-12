@@ -43,6 +43,16 @@ describe('RegistrationComponent', () => {
       registerCarToUser: jest.fn(),
       unregisterCarFromUser: jest.fn(),
       isCarRegisteredToCurrentUser: jest.fn(),
+      registerUserInApi: jest.fn().mockReturnValue({
+        subscribe: jest.fn(({ next }) => next({ id: 'user123' }))
+      }),
+      registerCarToUserInApi: jest.fn().mockReturnValue({
+        subscribe: jest.fn(({ next }) => next())
+      }),
+      unregisterCarFromUserInApi: jest.fn().mockReturnValue({
+        subscribe: jest.fn(({ next }) => next())
+      }),
+      setCurrentUser: jest.fn(),
       currentUser: signal(null)
     };
 
@@ -148,7 +158,7 @@ describe('RegistrationComponent', () => {
     component.registerUser();
 
     // Should call service
-    expect(registrationServiceMock.registerUser).toHaveBeenCalled();
+    expect(registrationServiceMock.registerUserInApi).toHaveBeenCalled();
 
     // Should reset form
     expect(component.newUser.name).toBe('');
@@ -190,7 +200,7 @@ describe('RegistrationComponent', () => {
     component.registerCarToCurrentUser();
 
     // Should call service
-    expect(registrationServiceMock.registerCarToUser).toHaveBeenCalledWith(mockUser.id, mockCar.id);
+    expect(registrationServiceMock.registerCarToUserInApi).toHaveBeenCalledWith(mockUser.id, mockCar.id);
   });
 
   it('should unregister a car from current user', () => {
@@ -202,7 +212,7 @@ describe('RegistrationComponent', () => {
     component.unregisterCar('car123');
 
     // Should call service
-    expect(registrationServiceMock.unregisterCarFromUser).toHaveBeenCalledWith(mockUser.id, 'car123');
+    expect(registrationServiceMock.unregisterCarFromUserInApi).toHaveBeenCalledWith(mockUser.id, 'car123');
   });
 
   it('should check if car is registered to current user', () => {
@@ -303,8 +313,8 @@ describe('RegistrationComponent', () => {
     const panelDiv = document.createElement('div');
     panelDiv.appendChild(nonHeaderDiv);
 
-    // Add event listener spies
-    jest.spyOn(document, 'addEventListener');
+    // Reset any previous calls to addEventListener
+    jest.spyOn(document, 'addEventListener').mockClear();
 
     // Create a more realistic MouseEvent
     const mouseEvent = new MouseEvent('mousedown', {
@@ -489,7 +499,7 @@ describe('RegistrationComponent', () => {
   it('should handle click on unregister button', () => {
     // Setup mocks
     (registrationServiceMock.currentUser as any).set(mockUser);
-    carDataServiceMock.getCar.and.returnValue(mockCar);
+    carDataServiceMock.getCar.mockReturnValue(mockCar);
     fixture.detectChanges();
 
     // Spy on unregisterCar method
@@ -514,7 +524,7 @@ describe('RegistrationComponent', () => {
   it('should handle click on car in registered cars list', () => {
     // Setup mocks
     (registrationServiceMock.currentUser as any).set(mockUser);
-    carDataServiceMock.getCar.and.returnValue(mockCar);
+    carDataServiceMock.getCar.mockReturnValue(mockCar);
     fixture.detectChanges();
 
     // Spy on selectCar method
@@ -593,8 +603,13 @@ describe('RegistrationComponent', () => {
 
     // Panel should have correct position
     const panel = fixture.debugElement.query(By.css('.registration-panel'));
-    expect(panel.styles['left.px']).toBe('100');
-    expect(panel.styles['top.px']).toBe('150');
+
+    // Check inline styles instead of styles property
+    const leftStyle = panel.nativeElement.style.left;
+    const topStyle = panel.nativeElement.style.top;
+
+    expect(leftStyle).toBe('100px');
+    expect(topStyle).toBe('150px');
   });
 
   it('should add minimized class when minimized', () => {

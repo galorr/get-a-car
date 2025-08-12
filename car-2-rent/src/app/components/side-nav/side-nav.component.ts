@@ -13,6 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormGroup } from '@angular/forms';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+
 import type { Car } from '../../models/car.model';
 import { RegistrationService } from '../../services/registration.service';
 
@@ -206,7 +207,7 @@ export class SideNavComponent {
       // eslint-disable-next-line dot-notation
       if (form.get('email')?.errors?.['required']) {
         errors.email = 'Email is required';
-      // eslint-disable-next-line dot-notation
+        // eslint-disable-next-line dot-notation
       } else if (form.get('email')?.errors?.['email']) {
         errors.email = 'Please enter a valid email address';
       }
@@ -234,7 +235,7 @@ export class SideNavComponent {
       // eslint-disable-next-line dot-notation
       if (form.get('rentalDuration')?.errors?.['required']) {
         errors.rentalDuration = 'Rental duration is required';
-      // eslint-disable-next-line dot-notation
+        // eslint-disable-next-line dot-notation
       } else if (form.get('rentalDuration')?.errors?.['min']) {
         errors.rentalDuration = 'Rental duration must be at least 1 day';
       }
