@@ -92,7 +92,7 @@ export class MapComponent implements AfterViewInit {
 
   private addMapFilters(): void {
     // Create custom control for filtering car statuses
-    const filterControl = new L.Control({ position: 'topright' });
+    const filterControl = new L.Control({ position: 'topleft' });
 
     filterControl.onAdd = () => {
       const div = L.DomUtil.create('div', 'map-filter-control');

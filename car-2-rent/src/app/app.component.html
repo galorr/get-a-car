@@ -22,18 +22,9 @@
     <!-- Router Outlet for Route-based Content -->
     <router-outlet></router-outlet>
 
-    <!-- Overlay Components (These will be shown based on the current route) -->
-    <!-- Search Component (Overlay) -->
-    <app-search></app-search>
-
     <!-- Car Grid (Overlay) -->
     <div class="grid-container" [class.collapsed]="isGridCollapsed()">
       <app-car-grid (toggleGrid)="toggleGrid()"></app-car-grid>
     </div>
-
-    <!-- Toggle Registration Button -->
-    <button class="toggle-registration-button" (click)="toggleRegistration()">
-      {{ showRegistration() ? 'Hide Registration' : 'Show Registration' }}
-    </button>
   </div>
 </div>

@@ -14,7 +14,6 @@ import {
 import { CarGridComponent } from './components/car-grid/car-grid.component';
 import { MapComponent } from './components/map/map.component';
 import { RegistrationComponent } from './components/registration/registration.component';
-import { SearchComponent } from './components/search/search.component';
 import { SideNavComponent } from './components/side-nav/side-nav.component';
 
 // Import services
@@ -31,7 +30,6 @@ import { NavigationService } from './services/navigation.service';
     MapComponent,
     CarGridComponent,
     RegistrationComponent,
-    SearchComponent,
     SideNavComponent,
   ],
   templateUrl: './app.component.html',
@@ -47,7 +45,6 @@ export class AppComponent implements OnInit {
   private mapService = inject(MapService);
 
   // Signals for UI state
-  showRegistration = signal(true);
   isGridCollapsed = signal(false);
   isLoading = signal(true);
 
@@ -98,10 +95,6 @@ export class AppComponent implements OnInit {
   // Methods to toggle UI elements
   toggleGrid(): void {
     this.isGridCollapsed.update(value => !value);
-  }
-
-  toggleRegistration(): void {
-    this.showRegistration.update(value => !value);
   }
 
   // Load initial data

@@ -119,7 +119,7 @@ export const mapServiceFactory = (): MapServiceInterface => {
   const createFilterControl = (): L.Control => {
     const CustomControl = L.Control.extend({
       options: {
-        position: 'topright'
+        position: 'topleft'
       },
 
       onAdd: (map: L.Map) => {
