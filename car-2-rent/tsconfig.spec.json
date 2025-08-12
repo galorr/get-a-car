@@ -3,13 +3,14 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "types": [
-      "jasmine",
+      "jest",
       "node",
-      "leaflet",
-      "jest"
+      "leaflet"
     ],
     "esModuleInterop": true,
-    "emitDecoratorMetadata": true
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true
   },
   "include": [
     "src/**/*.spec.ts",

@@ -11,34 +11,36 @@ import { MOCK_CARS } from '../../../test/mock-data-loader';
 describe('MapComponent', () => {
   let component: MapComponent;
   let fixture: ComponentFixture<MapComponent>;
-  let carDataServiceSpy: jasmine.SpyObj<CarDataService>;
-  let mapServiceSpy: jasmine.SpyObj<MapService>;
-  let changeDetectorRefSpy: jasmine.SpyObj<ChangeDetectorRef>;
-  
+  let carDataServiceSpy: any;
+  let mapServiceSpy: any;
+  let changeDetectorRefSpy: any;
+
   const mockCars: Car[] = MOCK_CARS;
-  
+
   beforeEach(async () => {
     // Create spies for the services
-    const carDataSpy = jasmine.createSpyObj('CarDataService', [
-      'getCars',
-      'getCar',
-      'selectedCar',
-      'selectCar'
-    ]);
-    
-    const mapSpy = jasmine.createSpyObj('MapService', [
-      'mapCenter',
-      'mapZoom',
-      'visibleStatuses',
-      'isStatusVisible',
-      'toggleStatusVisibility',
-      'getMarkerIcon',
-      'createPopupContent',
-      'calculateBounds'
-    ]);
-    
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
-    
+    const carDataSpy = {
+      getCars: jest.fn(),
+      getCar: jest.fn(),
+      selectedCar: jest.fn(),
+      selectCar: jest.fn()
+    };
+
+    const mapSpy = {
+      mapCenter: jest.fn(),
+      mapZoom: jest.fn(),
+      visibleStatuses: jest.fn(),
+      isStatusVisible: jest.fn(),
+      toggleStatusVisibility: jest.fn(),
+      getMarkerIcon: jest.fn(),
+      createPopupContent: jest.fn(),
+      calculateBounds: jest.fn()
+    };
+
+    const cdrSpy = {
+      detectChanges: jest.fn()
+    };
+
     await TestBed.configureTestingModule({
       imports: [MapComponent],
       providers: [
@@ -47,34 +49,34 @@ describe('MapComponent', () => {
         { provide: ChangeDetectorRef, useValue: cdrSpy }
       ]
     }).compileComponents();
-    
+
     // Setup default spy return values
-    carDataServiceSpy = TestBed.inject(CarDataService) as jasmine.SpyObj<CarDataService>;
-    carDataServiceSpy.getCars.and.returnValue(mockCars);
-    carDataServiceSpy.getCar.and.callFake((id: string) => mockCars.find(car => car.id === id));
-    carDataServiceSpy.selectedCar.and.returnValue(null);
-    
-    mapServiceSpy = TestBed.inject(MapService) as jasmine.SpyObj<MapService>;
-    mapServiceSpy.mapCenter.and.returnValue([51.505, -0.09]);
-    mapServiceSpy.mapZoom.and.returnValue(13);
-    mapServiceSpy.visibleStatuses.and.returnValue([
+    carDataServiceSpy = TestBed.inject(CarDataService);
+    carDataServiceSpy.getCars.mockReturnValue(mockCars);
+    carDataServiceSpy.getCar.mockImplementation((id: string) => mockCars.find(car => car.id === id));
+    carDataServiceSpy.selectedCar.mockReturnValue(null);
+
+    mapServiceSpy = TestBed.inject(MapService);
+    mapServiceSpy.mapCenter.mockReturnValue([51.505, -0.09]);
+    mapServiceSpy.mapZoom.mockReturnValue(13);
+    mapServiceSpy.visibleStatuses.mockReturnValue([
       CarStatus.AVAILABLE,
       CarStatus.RENTED,
       CarStatus.MAINTENANCE,
       CarStatus.INACTIVE
     ]);
-    mapServiceSpy.isStatusVisible.and.returnValue(true);
-    
-    changeDetectorRefSpy = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
-    
+    mapServiceSpy.isStatusVisible.mockReturnValue(true);
+
+    changeDetectorRefSpy = TestBed.inject(ChangeDetectorRef);
+
     fixture = TestBed.createComponent(MapComponent);
     component = fixture.componentInstance;
   });
-  
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  
+
   // Note: We're skipping most of the tests for the Map component because it heavily relies on Leaflet
   // which is difficult to mock properly in a unit test environment.
   // In a real-world scenario, we would use integration tests or end-to-end tests to test the map functionality.

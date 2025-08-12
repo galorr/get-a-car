@@ -11,14 +11,27 @@ import { environment } from '../../environments/environment';
 
 describe('CarDataService', () => {
   let service: CarDataService;
-  let httpClientSpy: jasmine.SpyObj<HttpClient>;
-  let apiServiceSpy: jasmine.SpyObj<ApiService>;
+  let httpClientSpy: any;
+  let apiServiceSpy: any;
 
   const mockCars: Car[] = MOCK_CARS;
 
   beforeEach(() => {
-    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post', 'put', 'delete', 'patch']);
-    apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'put', 'delete', 'patch']);
+    httpClientSpy = {
+      get: jest.fn(),
+      post: jest.fn(),
+      put: jest.fn(),
+      delete: jest.fn(),
+      patch: jest.fn()
+    };
+
+    apiServiceSpy = {
+      get: jest.fn(),
+      post: jest.fn(),
+      put: jest.fn(),
+      delete: jest.fn(),
+      patch: jest.fn()
+    };
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -39,11 +52,14 @@ describe('CarDataService', () => {
   describe('loadCars', () => {
     it('should load cars from mock data in development mode', (done) => {
       // Ensure mockDataEnabled is true
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(true);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => true
+      });
+
       // Setup the mock response
-      httpClientSpy.get.and.returnValue(of(mockCars));
-      
+      httpClientSpy.get.mockReturnValue(of(mockCars));
+
       // Call the method
       service.loadCars().subscribe({
         next: (cars) => {
@@ -59,12 +75,15 @@ describe('CarDataService', () => {
 
     it('should load cars from API in production mode', (done) => {
       // Ensure mockDataEnabled is false
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(false);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => false
+      });
+
       // Setup the mock response
       const apiResponse = MockApiResponses.getCarsResponse();
-      apiServiceSpy.get.and.returnValue(of(apiResponse));
-      
+      apiServiceSpy.get.mockReturnValue(of(apiResponse));
+
       // Call the method
       service.loadCars().subscribe({
         next: (cars) => {
@@ -80,12 +99,15 @@ describe('CarDataService', () => {
 
     it('should handle errors when loading cars', (done) => {
       // Ensure mockDataEnabled is true for simplicity
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(true);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => true
+      });
+
       // Setup the mock error
       const errorMessage = 'Error loading cars';
-      httpClientSpy.get.and.returnValue(throwError(() => new Error(errorMessage)));
-      
+      httpClientSpy.get.mockReturnValue(throwError(() => new Error(errorMessage)));
+
       // Call the method
       service.loadCars().subscribe({
         next: () => done.fail('Expected an error, not success'),
@@ -104,10 +126,10 @@ describe('CarDataService', () => {
     it('should return a car by ID', () => {
       // Setup the service with mock data
       service.updateCars(mockCars);
-      
+
       // Get a car by ID
       const car = service.getCar('car-001');
-      
+
       // Verify the result
       expect(car).toBeDefined();
       expect(car?.id).toBe('car-001');
@@ -117,10 +139,10 @@ describe('CarDataService', () => {
     it('should return undefined for non-existent car ID', () => {
       // Setup the service with mock data
       service.updateCars(mockCars);
-      
+
       // Get a non-existent car
       const car = service.getCar('non-existent-id');
-      
+
       // Verify the result
       expect(car).toBeUndefined();
     });
@@ -129,11 +151,14 @@ describe('CarDataService', () => {
   describe('getCarFromApi', () => {
     it('should get a car from mock data in development mode', (done) => {
       // Ensure mockDataEnabled is true
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(true);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => true
+      });
+
       // Setup the service with mock data
-      httpClientSpy.get.and.returnValue(of(mockCars));
-      
+      httpClientSpy.get.mockReturnValue(of(mockCars));
+
       // Get a car by ID
       service.getCarFromApi('car-001').subscribe({
         next: (car) => {
@@ -150,12 +175,15 @@ describe('CarDataService', () => {
 
     it('should get a car from API in production mode', (done) => {
       // Ensure mockDataEnabled is false
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(false);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => false
+      });
+
       // Setup the mock response
       const apiResponse = MockApiResponses.getCarByIdResponse('car-001');
-      apiServiceSpy.get.and.returnValue(of(apiResponse));
-      
+      apiServiceSpy.get.mockReturnValue(of(apiResponse));
+
       // Get a car by ID
       service.getCarFromApi('car-001').subscribe({
         next: (car) => {
@@ -171,12 +199,15 @@ describe('CarDataService', () => {
 
     it('should handle errors when getting a car', (done) => {
       // Ensure mockDataEnabled is true for simplicity
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(true);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => true
+      });
+
       // Setup the mock error
       const errorMessage = 'Error getting car';
-      httpClientSpy.get.and.returnValue(throwError(() => new Error(errorMessage)));
-      
+      httpClientSpy.get.mockReturnValue(throwError(() => new Error(errorMessage)));
+
       // Get a car by ID
       service.getCarFromApi('car-001').subscribe({
         next: () => done.fail('Expected an error, not success'),
@@ -195,10 +226,10 @@ describe('CarDataService', () => {
     it('should select a car by ID', () => {
       // Setup the service with mock data
       service.updateCars(mockCars);
-      
+
       // Select a car
       service.selectCar('car-001');
-      
+
       // Verify the result
       expect(service.selectedCar()).toBeDefined();
       expect(service.selectedCar()?.id).toBe('car-001');
@@ -208,10 +239,10 @@ describe('CarDataService', () => {
       // Setup the service with mock data and select a car
       service.updateCars(mockCars);
       service.selectCar('car-001');
-      
+
       // Deselect the car
       service.selectCar(null);
-      
+
       // Verify the result
       expect(service.selectedCar()).toBeNull();
     });
@@ -226,33 +257,33 @@ describe('CarDataService', () => {
     it('should filter cars by status', () => {
       // Get available cars
       const availableCars = service.availableCars();
-      
+
       // Verify the result
       expect(availableCars.length).toBe(mockCars.filter(car => car.status === CarStatus.AVAILABLE).length);
-      expect(availableCars.every(car => car.status === CarStatus.AVAILABLE)).toBeTrue();
+      expect(availableCars.every(car => car.status === CarStatus.AVAILABLE)).toBe(true);
     });
 
     it('should filter cars by type', () => {
       // Get cars by type
       const sedanCars = service.getCarsByType(CarType.SEDAN);
-      
+
       // Verify the result
       expect(sedanCars.length).toBe(mockCars.filter(car => car.type === CarType.SEDAN).length);
-      expect(sedanCars.every(car => car.type === CarType.SEDAN)).toBeTrue();
+      expect(sedanCars.every(car => car.type === CarType.SEDAN)).toBe(true);
     });
 
     it('should search cars by term', () => {
       // Search for cars
       const searchResults = service.searchCars('Toyota');
-      
+
       // Verify the result
-      expect(searchResults.length).toBe(mockCars.filter(car => 
-        car.name.includes('Toyota') || 
-        car.id.includes('Toyota') || 
+      expect(searchResults.length).toBe(mockCars.filter(car =>
+        car.name.includes('Toyota') ||
+        car.id.includes('Toyota') ||
         (car.licensePlate && car.licensePlate.includes('Toyota')) ||
         (car.model && car.model.includes('Toyota'))
       ).length);
-      expect(searchResults.some(car => car.name.includes('Toyota') || car.model?.includes('Toyota'))).toBeTrue();
+      expect(searchResults.some(car => car.name.includes('Toyota') || car.model?.includes('Toyota'))).toBe(true);
     });
 
     it('should apply complex filters', () => {
@@ -264,28 +295,28 @@ describe('CarDataService', () => {
         sortBy: 'name',
         sortDirection: 'asc'
       });
-      
+
       // Get filtered cars
       const filteredCars = service.filteredCars();
-      
+
       // Verify the result
-      expect(filteredCars.every(car => car.status === CarStatus.AVAILABLE)).toBeTrue();
-      expect(filteredCars.every(car => car.type === CarType.SEDAN)).toBeTrue();
-      expect(filteredCars.every(car => car.year !== undefined && car.year >= 2022)).toBeTrue();
-      
+      expect(filteredCars.every(car => car.status === CarStatus.AVAILABLE)).toBe(true);
+      expect(filteredCars.every(car => car.type === CarType.SEDAN)).toBe(true);
+      expect(filteredCars.every(car => car.year !== undefined && car.year >= 2022)).toBe(true);
+
       // Verify sorting
       for (let i = 1; i < filteredCars.length; i++) {
-        expect(filteredCars[i-1].name <= filteredCars[i].name).toBeTrue();
+        expect(filteredCars[i-1].name <= filteredCars[i].name).toBe(true);
       }
     });
 
     it('should update filter partially', () => {
       // Set initial filter
       service.setFilter({ status: [CarStatus.AVAILABLE] });
-      
+
       // Update filter
       service.updateFilter({ type: [CarType.SEDAN] });
-      
+
       // Verify the result
       const currentFilter = service.currentFilter();
       expect(currentFilter.status).toEqual([CarStatus.AVAILABLE]);
@@ -298,10 +329,10 @@ describe('CarDataService', () => {
         status: [CarStatus.AVAILABLE],
         type: [CarType.SEDAN]
       });
-      
+
       // Reset filter
       service.resetFilter();
-      
+
       // Verify the result
       expect(service.currentFilter()).toEqual({});
     });
@@ -311,11 +342,11 @@ describe('CarDataService', () => {
     it('should add a car', () => {
       // Setup the service with empty data
       service.updateCars([]);
-      
+
       // Add a car
       const newCar = mockCars[0];
       service.addCar(newCar);
-      
+
       // Verify the result
       expect(service.getCars().length).toBe(1);
       expect(service.getCars()[0]).toEqual(newCar);
@@ -324,11 +355,11 @@ describe('CarDataService', () => {
     it('should update a car', () => {
       // Setup the service with mock data
       service.updateCars(mockCars);
-      
+
       // Update a car
       const updatedCar = { ...mockCars[0], name: 'Updated Car Name' };
       service.updateCar(updatedCar);
-      
+
       // Verify the result
       expect(service.getCar(updatedCar.id)?.name).toBe('Updated Car Name');
     });
@@ -337,10 +368,10 @@ describe('CarDataService', () => {
       // Setup the service with mock data
       service.updateCars(mockCars);
       const initialCount = service.getCars().length;
-      
+
       // Remove a car
       service.removeCar(mockCars[0].id);
-      
+
       // Verify the result
       expect(service.getCars().length).toBe(initialCount - 1);
       expect(service.getCar(mockCars[0].id)).toBeUndefined();
@@ -350,10 +381,10 @@ describe('CarDataService', () => {
       // Setup the service with mock data and select a car
       service.updateCars(mockCars);
       service.selectCar(mockCars[0].id);
-      
+
       // Remove the selected car
       service.removeCar(mockCars[0].id);
-      
+
       // Verify the result
       expect(service.selectedCar()).toBeNull();
     });
@@ -362,8 +393,11 @@ describe('CarDataService', () => {
   describe('API operations', () => {
     it('should create a car in the API', (done) => {
       // Ensure mockDataEnabled is false
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(false);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => false
+      });
+
       // Setup the mock response
       const newCar = { ...mockCars[0], id: undefined } as any;
       const apiResponse = {
@@ -372,8 +406,8 @@ describe('CarDataService', () => {
         message: 'Car created successfully',
         timestamp: new Date().toISOString()
       };
-      apiServiceSpy.post.and.returnValue(of(apiResponse));
-      
+      apiServiceSpy.post.mockReturnValue(of(apiResponse));
+
       // Create a car
       service.createCar(newCar).subscribe({
         next: (car) => {
@@ -389,11 +423,14 @@ describe('CarDataService', () => {
 
     it('should update a car in the API', (done) => {
       // Ensure mockDataEnabled is false
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(false);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => false
+      });
+
       // Setup the service with mock data
       service.updateCars(mockCars);
-      
+
       // Setup the mock response
       const updatedCar = { ...mockCars[0], name: 'Updated Car Name' };
       const apiResponse = {
@@ -402,8 +439,8 @@ describe('CarDataService', () => {
         message: 'Car updated successfully',
         timestamp: new Date().toISOString()
       };
-      apiServiceSpy.put.and.returnValue(of(apiResponse));
-      
+      apiServiceSpy.put.mockReturnValue(of(apiResponse));
+
       // Update a car
       service.updateCarInApi(updatedCar).subscribe({
         next: (car) => {
@@ -419,12 +456,15 @@ describe('CarDataService', () => {
 
     it('should delete a car in the API', (done) => {
       // Ensure mockDataEnabled is false
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(false);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => false
+      });
+
       // Setup the service with mock data
       service.updateCars(mockCars);
       const initialCount = service.getCars().length;
-      
+
       // Setup the mock response
       const apiResponse = {
         data: { id: mockCars[0].id },
@@ -432,8 +472,8 @@ describe('CarDataService', () => {
         message: 'Car deleted successfully',
         timestamp: new Date().toISOString()
       };
-      apiServiceSpy.delete.and.returnValue(of(apiResponse));
-      
+      apiServiceSpy.delete.mockReturnValue(of(apiResponse));
+
       // Delete a car
       service.deleteCar(mockCars[0].id).subscribe({
         next: () => {
@@ -457,7 +497,7 @@ describe('CarDataService', () => {
     it('should update car status', () => {
       // Update car status
       service.updateCarStatus(mockCars[0].id, CarStatus.RENTED);
-      
+
       // Verify the result
       expect(service.getCar(mockCars[0].id)?.status).toBe(CarStatus.RENTED);
     });
@@ -467,7 +507,7 @@ describe('CarDataService', () => {
       const newLatitude = 52.0;
       const newLongitude = -1.0;
       service.updateCarLocation(mockCars[0].id, newLatitude, newLongitude);
-      
+
       // Verify the result
       const updatedCar = service.getCar(mockCars[0].id);
       expect(updatedCar?.latitude).toBe(newLatitude);
@@ -476,8 +516,11 @@ describe('CarDataService', () => {
 
     it('should update car status in the API', (done) => {
       // Ensure mockDataEnabled is false
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(false);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => false
+      });
+
       // Setup the mock response
       const updatedCar = { ...mockCars[0], status: CarStatus.RENTED };
       const apiResponse = {
@@ -486,8 +529,8 @@ describe('CarDataService', () => {
         message: 'Car status updated successfully',
         timestamp: new Date().toISOString()
       };
-      apiServiceSpy.patch.and.returnValue(of(apiResponse));
-      
+      apiServiceSpy.patch.mockReturnValue(of(apiResponse));
+
       // Update car status
       service.updateCarStatusInApi(mockCars[0].id, CarStatus.RENTED).subscribe({
         next: (car) => {
@@ -503,8 +546,11 @@ describe('CarDataService', () => {
 
     it('should update car location in the API', (done) => {
       // Ensure mockDataEnabled is false
-      spyOnProperty(environment, 'mockDataEnabled').and.returnValue(false);
-      
+      // Mock environment property
+      Object.defineProperty(environment, 'mockDataEnabled', {
+        get: () => false
+      });
+
       // Setup the mock response
       const newLatitude = 52.0;
       const newLongitude = -1.0;
@@ -515,8 +561,8 @@ describe('CarDataService', () => {
         message: 'Car location updated successfully',
         timestamp: new Date().toISOString()
       };
-      apiServiceSpy.patch.and.returnValue(of(apiResponse));
-      
+      apiServiceSpy.patch.mockReturnValue(of(apiResponse));
+
       // Update car location
       service.updateCarLocationInApi(mockCars[0].id, newLatitude, newLongitude).subscribe({
         next: (car) => {
@@ -537,11 +583,12 @@ describe('CarDataService', () => {
   describe('Error handling', () => {
     it('should clear error', () => {
       // Set an error
-      service['errorSignal'].set('Test error');
-      
+      // Access the private property using a different approach
+      (service as any).errorSignal.set('Test error');
+
       // Clear error
       service.clearError();
-      
+
       // Verify the result
       expect(service.error()).toBeNull();
     });

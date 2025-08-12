@@ -1,23 +1,38 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable } from 'rxjs';
-import { User, UserRole, UserStatus, UserRegistrationRequest } from '../models/user.model';
+import type { Observable } from 'rxjs';
+
 import { DataService } from './data.service';
+import type {
+  User,
+  UserRole,
+  UserStatus,
+  UserRegistrationRequest,
+} from '../models/user.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RegistrationService {
   private dataService = inject(DataService);
 
   // Registration form UI state signals
   private registrationFormVisibleSignal = signal<boolean>(false);
-  private registrationFormPositionSignal = signal<{ x: number; y: number }>({ x: 20, y: 20 });
+  private registrationFormPositionSignal = signal<{ x: number; y: number }>({
+    x: 20,
+    y: 20,
+  });
   private registrationFormMinimizedSignal = signal<boolean>(false);
 
   // Computed signals for registration form UI state
-  public isRegistrationFormVisible = computed(() => this.registrationFormVisibleSignal());
-  public registrationFormPosition = computed(() => this.registrationFormPositionSignal());
-  public isRegistrationFormMinimized = computed(() => this.registrationFormMinimizedSignal());
+  public isRegistrationFormVisible = computed(() =>
+    this.registrationFormVisibleSignal()
+  );
+  public registrationFormPosition = computed(() =>
+    this.registrationFormPositionSignal()
+  );
+  public isRegistrationFormMinimized = computed(() =>
+    this.registrationFormMinimizedSignal()
+  );
 
   constructor() {
     console.log('[RegistrationService] Constructor initialized');
@@ -64,7 +79,9 @@ export class RegistrationService {
   /**
    * Register a new user in the API
    */
-  registerUserInApi(registrationData: UserRegistrationRequest): Observable<User> {
+  registerUserInApi(
+    registrationData: UserRegistrationRequest
+  ): Observable<User> {
     return this.dataService.registerUserInApi(registrationData);
   }
 
@@ -128,11 +145,14 @@ export class RegistrationService {
     }
 
     const searchTerm = term.toLowerCase();
-    return this.dataService.users().filter(user =>
-      user.name.toLowerCase().includes(searchTerm) ||
-      user.email.toLowerCase().includes(searchTerm) ||
-      (user.phone && user.phone.toLowerCase().includes(searchTerm))
-    );
+    return this.dataService
+      .users()
+      .filter(
+        user =>
+          user.name.toLowerCase().includes(searchTerm) ||
+          user.email.toLowerCase().includes(searchTerm) ||
+          (user.phone && user.phone.toLowerCase().includes(searchTerm))
+      );
   }
 
   // ===== REGISTRATION FORM UI METHODS =====
@@ -187,7 +207,9 @@ export class RegistrationService {
    * Toggle registration form minimized state
    */
   toggleRegistrationFormMinimized(): void {
-    this.registrationFormMinimizedSignal.update((minimized: boolean) => !minimized);
+    this.registrationFormMinimizedSignal.update(
+      (minimized: boolean) => !minimized
+    );
   }
 
   /**

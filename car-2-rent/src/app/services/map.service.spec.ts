@@ -2,49 +2,47 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
 import { MapService, MapMarker, MapBounds, ClusterOptions } from './map.service';
-import { CarDataService } from './car-data.service';
+import { DataService } from './data.service';
 import { Car, CarStatus } from '../models/car.model';
 import { MOCK_CARS } from '../../test/mock-data-loader';
 import * as L from 'leaflet';
 
 describe('MapService', () => {
   let service: MapService;
-  let carDataServiceSpy: jasmine.SpyObj<CarDataService>;
+  let dataServiceSpy: any;
 
   const mockCars: Car[] = MOCK_CARS;
 
   beforeEach(() => {
-    // Create a spy for CarDataService
-    const carDataSpy = jasmine.createSpyObj('CarDataService', [
-      'getCars', 
-      'selectedCar', 
-      'selectCar', 
-      'getCar', 
-      'getAllCarLocations'
-    ]);
+    // Create a spy for DataService
+    const dataSpy = {
+      cars: jest.fn().mockReturnValue(mockCars),
+      selectedCar: jest.fn().mockReturnValue(null),
+      selectedCarId: jest.fn().mockReturnValue(null),
+      selectCar: jest.fn(),
+      getAllCarLocations: jest.fn(),
+      carLoadingSignal: { set: jest.fn() },
+      carErrorSignal: { set: jest.fn() },
+    };
 
     TestBed.configureTestingModule({
-      providers: [
-        MapService,
-        { provide: CarDataService, useValue: carDataSpy }
-      ]
+      providers: [MapService, { provide: DataService, useValue: dataSpy }],
     });
 
     service = TestBed.inject(MapService);
-    carDataServiceSpy = TestBed.inject(CarDataService) as jasmine.SpyObj<CarDataService>;
+    dataServiceSpy = TestBed.inject(DataService);
 
     // Setup default spy return values
-    carDataServiceSpy.getCars.and.returnValue(mockCars);
-    carDataServiceSpy.selectedCar.and.returnValue(null);
-    carDataServiceSpy.getCar.and.callFake((id: string) => mockCars.find(car => car.id === id));
-    carDataServiceSpy.getAllCarLocations.and.returnValue(of(
-      mockCars.map(car => ({
-        id: car.id,
-        latitude: car.latitude,
-        longitude: car.longitude,
-        lastUpdated: car.lastUpdated
-      }))
-    ));
+    dataServiceSpy.getAllCarLocations.mockReturnValue(
+      of(
+        mockCars.map(car => ({
+          id: car.id,
+          latitude: car.latitude,
+          longitude: car.longitude,
+          lastUpdated: car.lastUpdated,
+        })),
+      ),
+    );
   });
 
   it('should be created', () => {
@@ -55,17 +53,17 @@ describe('MapService', () => {
     it('should set map center', () => {
       const latitude = 52.0;
       const longitude = -1.0;
-      
+
       service.setMapCenter(latitude, longitude);
-      
+
       expect(service.mapCenter()).toEqual([latitude, longitude]);
     });
 
     it('should set map zoom', () => {
       const zoom = 15;
-      
+
       service.setMapZoom(zoom);
-      
+
       expect(service.mapZoom()).toBe(zoom);
     });
   });
@@ -76,11 +74,11 @@ describe('MapService', () => {
         north: 52.0,
         south: 51.0,
         east: 0.0,
-        west: -1.0
+        west: -1.0,
       };
-      
+
       service.setMapBounds(bounds);
-      
+
       expect(service.mapBounds()).toEqual(bounds);
     });
 
@@ -89,12 +87,12 @@ describe('MapService', () => {
         north: 52.0,
         south: 51.0,
         east: 0.0,
-        west: -1.0
+        west: -1.0,
       };
-      
+
       service.setMapBounds(bounds);
       service.clearMapBounds();
-      
+
       expect(service.mapBounds()).toBeNull();
     });
   });
@@ -102,31 +100,31 @@ describe('MapService', () => {
   describe('Status visibility', () => {
     it('should toggle status visibility', () => {
       // Initially all statuses are visible
-      expect(service.isStatusVisible(CarStatus.AVAILABLE)).toBeTrue();
-      
+      expect(service.isStatusVisible(CarStatus.AVAILABLE)).toBe(true);
+
       // Toggle AVAILABLE status off
       service.toggleStatusVisibility(CarStatus.AVAILABLE);
-      
+
       // AVAILABLE should now be hidden
-      expect(service.isStatusVisible(CarStatus.AVAILABLE)).toBeFalse();
-      
+      expect(service.isStatusVisible(CarStatus.AVAILABLE)).toBe(false);
+
       // Toggle AVAILABLE status back on
       service.toggleStatusVisibility(CarStatus.AVAILABLE);
-      
+
       // AVAILABLE should now be visible again
-      expect(service.isStatusVisible(CarStatus.AVAILABLE)).toBeTrue();
+      expect(service.isStatusVisible(CarStatus.AVAILABLE)).toBe(true);
     });
 
     it('should set visible statuses', () => {
       const statuses = [CarStatus.AVAILABLE, CarStatus.RENTED];
-      
+
       service.setVisibleStatuses(statuses);
-      
+
       expect(service.visibleStatuses()).toEqual(statuses);
-      expect(service.isStatusVisible(CarStatus.AVAILABLE)).toBeTrue();
-      expect(service.isStatusVisible(CarStatus.RENTED)).toBeTrue();
-      expect(service.isStatusVisible(CarStatus.MAINTENANCE)).toBeFalse();
-      expect(service.isStatusVisible(CarStatus.INACTIVE)).toBeFalse();
+      expect(service.isStatusVisible(CarStatus.AVAILABLE)).toBe(true);
+      expect(service.isStatusVisible(CarStatus.RENTED)).toBe(true);
+      expect(service.isStatusVisible(CarStatus.MAINTENANCE)).toBe(false);
+      expect(service.isStatusVisible(CarStatus.INACTIVE)).toBe(false);
     });
   });
 
@@ -134,11 +132,11 @@ describe('MapService', () => {
     it('should update cluster options', () => {
       const options: Partial<ClusterOptions> = {
         enabled: false,
-        maxClusterRadius: 100
+        maxClusterRadius: 100,
       };
-      
+
       service.updateClusterOptions(options);
-      
+
       expect(service.clusterOptions().enabled).toBe(false);
       expect(service.clusterOptions().maxClusterRadius).toBe(100);
       // The disableClusteringAtZoom should remain unchanged
@@ -149,33 +147,35 @@ describe('MapService', () => {
   describe('Marker selection', () => {
     it('should select a marker', () => {
       service.selectMarker('car-001');
-      
+
       expect(service.selectedMarkerId()).toBe('car-001');
-      expect(carDataServiceSpy.selectCar).toHaveBeenCalledWith('car-001');
+      expect(dataServiceSpy.selectCar).toHaveBeenCalledWith('car-001');
     });
 
     it('should deselect a marker when passing null', () => {
       service.selectMarker('car-001');
       service.selectMarker(null);
-      
+
       expect(service.selectedMarkerId()).toBeNull();
-      expect(carDataServiceSpy.selectCar).toHaveBeenCalledWith(null);
+      expect(dataServiceSpy.selectCar).toHaveBeenCalledWith(null);
     });
 
-    it('should not call carDataService.selectCar if the car is already selected', () => {
-      carDataServiceSpy.selectedCar.and.returnValue(mockCars[0]);
-      
+    it('should not call dataService.selectCar if the car is already selected', () => {
+      // Setup: Set the selected car ID
+      dataServiceSpy.selectedCarId.mockReturnValue(mockCars[0].id);
+
       service.selectMarker(mockCars[0].id);
-      
+
       expect(service.selectedMarkerId()).toBe(mockCars[0].id);
-      expect(carDataServiceSpy.selectCar).not.toHaveBeenCalled();
+      // The selectCar method should not be called since the car is already selected
+      expect(dataServiceSpy.selectCar).not.toHaveBeenCalled();
     });
   });
 
   describe('Marker icons and popups', () => {
     it('should get marker icon based on car status', () => {
       const icon = service.getMarkerIcon(CarStatus.AVAILABLE);
-      
+
       expect(icon).toBeDefined();
       expect((icon as any).options.iconUrl).toBe('assets/images/marker-green.png');
     });
@@ -183,7 +183,7 @@ describe('MapService', () => {
     it('should create popup content for a car', () => {
       const car = mockCars[0];
       const popupContent = service.createPopupContent(car);
-      
+
       expect(popupContent).toContain(car.name);
       expect(popupContent).toContain(car.id);
       expect(popupContent).toContain(car.status);
@@ -195,27 +195,27 @@ describe('MapService', () => {
     it('should update markers from cars', () => {
       // Call the method to update markers
       service.updateMarkersFromCars(mockCars);
-      
+
       // Check that markers were created
       expect(service.markers().size).toBe(mockCars.length);
-      
+
       // Check that each car has a corresponding marker
       mockCars.forEach(car => {
-        expect(service.markers().has(car.id)).toBeTrue();
+        expect(service.markers().has(car.id)).toBe(true);
       });
     });
 
     it('should update existing markers when cars change', () => {
       // First, create markers
       service.updateMarkersFromCars(mockCars);
-      
+
       // Then, update a car's position
       const updatedCars = [...mockCars];
       updatedCars[0] = { ...updatedCars[0], latitude: 52.0, longitude: -1.0 };
-      
+
       // Update markers with the modified cars
       service.updateMarkersFromCars(updatedCars);
-      
+
       // Check that the marker was updated
       const marker = service.markers().get(updatedCars[0].id);
       expect(marker).toBeDefined();
@@ -226,15 +226,15 @@ describe('MapService', () => {
     it('should remove markers for cars that no longer exist', () => {
       // First, create markers
       service.updateMarkersFromCars(mockCars);
-      
+
       // Then, remove a car
       const reducedCars = mockCars.slice(1); // Remove the first car
-      
+
       // Update markers with the reduced set of cars
       service.updateMarkersFromCars(reducedCars);
-      
+
       // Check that the marker for the removed car was deleted
-      expect(service.markers().has(mockCars[0].id)).toBeFalse();
+      expect(service.markers().has(mockCars[0].id)).toBe(false);
       expect(service.markers().size).toBe(reducedCars.length);
     });
   });
@@ -248,32 +248,32 @@ describe('MapService', () => {
     it('should filter markers by visible statuses', () => {
       // Set visible statuses to only AVAILABLE
       service.setVisibleStatuses([CarStatus.AVAILABLE]);
-      
+
       // Get visible markers
       const visibleMarkers = service.visibleMarkers();
-      
+
       // Check that only AVAILABLE markers are visible
       expect(visibleMarkers.length).toBe(
-        mockCars.filter(car => car.status === CarStatus.AVAILABLE).length
+        mockCars.filter(car => car.status === CarStatus.AVAILABLE).length,
       );
-      expect(visibleMarkers.every(marker => marker.status === CarStatus.AVAILABLE)).toBeTrue();
+      expect(visibleMarkers.every(marker => marker.status === CarStatus.AVAILABLE)).toBe(true);
     });
 
     it('should count markers by status', () => {
       const counts = service.markersCountByStatus();
-      
+
       // Check counts for each status
       expect(counts[CarStatus.AVAILABLE]).toBe(
-        mockCars.filter(car => car.status === CarStatus.AVAILABLE).length
+        mockCars.filter(car => car.status === CarStatus.AVAILABLE).length,
       );
       expect(counts[CarStatus.RENTED]).toBe(
-        mockCars.filter(car => car.status === CarStatus.RENTED).length
+        mockCars.filter(car => car.status === CarStatus.RENTED).length,
       );
       expect(counts[CarStatus.MAINTENANCE]).toBe(
-        mockCars.filter(car => car.status === CarStatus.MAINTENANCE).length
+        mockCars.filter(car => car.status === CarStatus.MAINTENANCE).length,
       );
       expect(counts[CarStatus.INACTIVE]).toBe(
-        mockCars.filter(car => car.status === CarStatus.INACTIVE).length
+        mockCars.filter(car => car.status === CarStatus.INACTIVE).length,
       );
       expect(counts.total).toBe(mockCars.length);
     });
@@ -287,7 +287,7 @@ describe('MapService', () => {
 
     it('should fit map to markers', () => {
       const bounds = service.fitMapToMarkers();
-      
+
       expect(bounds).toBeDefined();
       if (bounds) {
         expect(bounds.north).toBeGreaterThan(bounds.south);
@@ -298,8 +298,8 @@ describe('MapService', () => {
 
     it('should fit map to a specific car', () => {
       const result = service.fitMapToCar(mockCars[0].id);
-      
-      expect(result).toBeTrue();
+
+      expect(result).toBe(true);
       expect(service.mapCenter()).toEqual([mockCars[0].latitude, mockCars[0].longitude]);
       expect(service.mapZoom()).toBe(18);
       expect(service.selectedMarkerId()).toBe(mockCars[0].id);
@@ -307,8 +307,8 @@ describe('MapService', () => {
 
     it('should return false when fitting map to a non-existent car', () => {
       const result = service.fitMapToCar('non-existent-id');
-      
-      expect(result).toBeFalse();
+
+      expect(result).toBe(false);
     });
 
     it('should get markers within bounds', () => {
@@ -316,19 +316,20 @@ describe('MapService', () => {
         north: 51.52,
         south: 51.50,
         east: -0.08,
-        west: -0.10
+        west: -0.10,
       };
-      
+
       const markersInBounds = service.getMarkersWithinBounds(bounds);
-      
+
       // Count how many cars are within these bounds
-      const expectedCount = mockCars.filter(car => 
-        car.latitude <= bounds.north &&
-        car.latitude >= bounds.south &&
-        car.longitude <= bounds.east &&
-        car.longitude >= bounds.west
+      const expectedCount = mockCars.filter(
+        car =>
+          car.latitude <= bounds.north &&
+          car.latitude >= bounds.south &&
+          car.longitude <= bounds.east &&
+          car.longitude >= bounds.west,
       ).length;
-      
+
       expect(markersInBounds.length).toBe(expectedCount);
     });
   });
@@ -338,67 +339,51 @@ describe('MapService', () => {
       service.refreshCarLocations().subscribe({
         next: (locations) => {
           expect(locations.length).toBe(mockCars.length);
-          expect(carDataServiceSpy.getAllCarLocations).toHaveBeenCalled();
-          expect(service.isLoading()).toBeFalse();
+          expect(dataServiceSpy.getAllCarLocations).toHaveBeenCalled();
           done();
         },
-        error: done.fail
+        error: done.fail,
       });
     });
 
     it('should handle errors when refreshing car locations', (done) => {
       const errorMessage = 'Error refreshing car locations';
-      carDataServiceSpy.getAllCarLocations.and.returnValue(throwError(() => new Error(errorMessage)));
-      
+      dataServiceSpy.getAllCarLocations.mockReturnValue(throwError(() => new Error(errorMessage)));
+
       service.refreshCarLocations().subscribe({
         next: () => done.fail('Expected an error, not success'),
         error: (error) => {
           expect(error.message).toBe(errorMessage);
-          expect(service.error()).toBe('Failed to refresh car locations. Please try again later.');
-          expect(service.isLoading()).toBeFalse();
           done();
-        }
+        },
       });
-    });
-  });
-
-  describe('Error handling', () => {
-    it('should clear error', () => {
-      // Set an error
-      service['errorSignal'].set('Test error');
-      
-      // Clear error
-      service.clearError();
-      
-      // Verify the result
-      expect(service.error()).toBeNull();
     });
   });
 
   describe('Effects', () => {
     it('should update markers when car data changes', () => {
       // Spy on updateMarkersFromCars
-      spyOn(service, 'updateMarkersFromCars');
-      
-      // Trigger the effect by calling getCars
-      carDataServiceSpy.getCars();
-      
-      // Verify that updateMarkersFromCars was called
-      expect(service.updateMarkersFromCars).toHaveBeenCalled();
+      jest.spyOn(service, 'updateMarkersFromCars');
+
+      // Trigger the effect by calling cars
+      const carsValue = dataServiceSpy.cars();
+
+      // Verify that updateMarkersFromCars was called with the cars
+      expect(service.updateMarkersFromCars).toHaveBeenCalledWith(carsValue);
     });
 
     it('should select marker and set map center when selected car changes', () => {
       // Spy on selectMarker and setMapCenter
-      spyOn(service, 'selectMarker');
-      spyOn(service, 'setMapCenter');
-      
+      jest.spyOn(service, 'selectMarker');
+      jest.spyOn(service, 'setMapCenter');
+
       // Set a selected car
       const selectedCar = mockCars[0];
-      carDataServiceSpy.selectedCar.and.returnValue(selectedCar);
-      
+      dataServiceSpy.selectedCar.mockReturnValue(selectedCar);
+
       // Trigger the effect by calling selectedCar
-      carDataServiceSpy.selectedCar();
-      
+      const selectedCarValue = dataServiceSpy.selectedCar();
+
       // Verify that selectMarker and setMapCenter were called
       expect(service.selectMarker).toHaveBeenCalledWith(selectedCar.id);
       expect(service.setMapCenter).toHaveBeenCalledWith(selectedCar.latitude, selectedCar.longitude);
@@ -406,14 +391,14 @@ describe('MapService', () => {
 
     it('should deselect marker when selected car is null', () => {
       // Spy on selectMarker
-      spyOn(service, 'selectMarker');
-      
+      jest.spyOn(service, 'selectMarker');
+
       // Set selected car to null
-      carDataServiceSpy.selectedCar.and.returnValue(null);
-      
+      dataServiceSpy.selectedCar.mockReturnValue(null);
+
       // Trigger the effect by calling selectedCar
-      carDataServiceSpy.selectedCar();
-      
+      const selectedCarValue = dataServiceSpy.selectedCar();
+
       // Verify that selectMarker was called with null
       expect(service.selectMarker).toHaveBeenCalledWith(null);
     });

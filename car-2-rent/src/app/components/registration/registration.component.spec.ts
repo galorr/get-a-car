@@ -12,9 +12,9 @@ import { Car, CarStatus } from '../../models/car.model';
 describe('RegistrationComponent', () => {
   let component: RegistrationComponent;
   let fixture: ComponentFixture<RegistrationComponent>;
-  let registrationServiceMock: jasmine.SpyObj<RegistrationService>;
-  let carDataServiceMock: jasmine.SpyObj<CarDataService>;
-  
+  let registrationServiceMock: any;
+  let carDataServiceMock: any;
+
   // Mock data
   const mockCar: Car = {
     id: 'car123',
@@ -26,7 +26,7 @@ describe('RegistrationComponent', () => {
     model: 'Test Model',
     licensePlate: 'ABC-123'
   };
-  
+
   const mockUser: User = {
     id: 'user123',
     name: 'Test User',
@@ -37,23 +37,20 @@ describe('RegistrationComponent', () => {
 
   beforeEach(async () => {
     // Create mock services
-    registrationServiceMock = jasmine.createSpyObj('RegistrationService', [
-      'registerUser',
-      'registerCarToUser',
-      'unregisterCarFromUser',
-      'isCarRegisteredToCurrentUser',
-      'currentUser'
-    ], {
+    // Create mock services with Jest
+    registrationServiceMock = {
+      registerUser: jest.fn(),
+      registerCarToUser: jest.fn(),
+      unregisterCarFromUser: jest.fn(),
+      isCarRegisteredToCurrentUser: jest.fn(),
       currentUser: signal(null)
-    });
-    
-    carDataServiceMock = jasmine.createSpyObj('CarDataService', [
-      'selectCar',
-      'getCar',
-      'selectedCar'
-    ], {
+    };
+
+    carDataServiceMock = {
+      selectCar: jest.fn(),
+      getCar: jest.fn(),
       selectedCar: signal(null)
-    });
+    };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -82,9 +79,9 @@ describe('RegistrationComponent', () => {
   });
 
   it('should initialize with default values', () => {
-    expect(component.isMinimized()).toBeFalse();
+    expect(component.isMinimized()).toBe(false);
     expect(component.position()).toEqual({ x: 20, y: 20 });
-    expect(component.isDragging()).toBeFalse();
+    expect(component.isDragging()).toBe(false);
     expect(component.dragOffset()).toEqual({ x: 0, y: 0 });
     expect(component.selectedCar()).toBeNull();
     expect(component.currentUser()).toBeNull();
@@ -108,10 +105,10 @@ describe('RegistrationComponent', () => {
       phone: '',
       registeredCars: []
     };
-    expect(component.validateForm()).toBeFalse();
+    expect(component.validateForm()).toBe(false);
     expect(component.formErrors().name).toBeTruthy();
     expect(component.formErrors().email).toBeTruthy();
-    
+
     // Invalid email should be invalid
     component.newUser = {
       id: '',
@@ -120,10 +117,10 @@ describe('RegistrationComponent', () => {
       phone: '',
       registeredCars: []
     };
-    expect(component.validateForm()).toBeFalse();
+    expect(component.validateForm()).toBe(false);
     expect(component.formErrors().name).toBeFalsy();
     expect(component.formErrors().email).toBeTruthy();
-    
+
     // Valid form should be valid
     component.newUser = {
       id: '',
@@ -132,7 +129,7 @@ describe('RegistrationComponent', () => {
       phone: '',
       registeredCars: []
     };
-    expect(component.validateForm()).toBeTrue();
+    expect(component.validateForm()).toBe(true);
     expect(component.formErrors().name).toBeFalsy();
     expect(component.formErrors().email).toBeFalsy();
   });
@@ -146,18 +143,18 @@ describe('RegistrationComponent', () => {
       phone: '123-456-7890',
       registeredCars: []
     };
-    
+
     // Register user
     component.registerUser();
-    
+
     // Should call service
     expect(registrationServiceMock.registerUser).toHaveBeenCalled();
-    
+
     // Should reset form
     expect(component.newUser.name).toBe('');
     expect(component.newUser.email).toBe('');
     expect(component.newUser.phone).toBe('');
-    
+
     // Should clear errors
     expect(component.formErrors()).toEqual({});
   });
@@ -171,13 +168,13 @@ describe('RegistrationComponent', () => {
       phone: '',
       registeredCars: []
     };
-    
+
     // Try to register user
     component.registerUser();
-    
+
     // Should not call service
     expect(registrationServiceMock.registerUser).not.toHaveBeenCalled();
-    
+
     // Should have errors
     expect(component.formErrors().name).toBeTruthy();
     expect(component.formErrors().email).toBeTruthy();
@@ -188,10 +185,10 @@ describe('RegistrationComponent', () => {
     (registrationServiceMock.currentUser as any).set(mockUser);
     (carDataServiceMock.selectedCar as any).set(mockCar);
     fixture.detectChanges();
-    
+
     // Register car
     component.registerCarToCurrentUser();
-    
+
     // Should call service
     expect(registrationServiceMock.registerCarToUser).toHaveBeenCalledWith(mockUser.id, mockCar.id);
   });
@@ -200,33 +197,33 @@ describe('RegistrationComponent', () => {
     // Setup mock data
     (registrationServiceMock.currentUser as any).set(mockUser);
     fixture.detectChanges();
-    
+
     // Unregister car
     component.unregisterCar('car123');
-    
+
     // Should call service
     expect(registrationServiceMock.unregisterCarFromUser).toHaveBeenCalledWith(mockUser.id, 'car123');
   });
 
   it('should check if car is registered to current user', () => {
     // Setup mock
-    registrationServiceMock.isCarRegisteredToCurrentUser.and.returnValue(true);
-    
+    registrationServiceMock.isCarRegisteredToCurrentUser.mockReturnValue(true);
+
     // Check if car is registered
     const result = component.isCarRegistered('car123');
-    
+
     // Should call service and return result
     expect(registrationServiceMock.isCarRegisteredToCurrentUser).toHaveBeenCalledWith('car123');
-    expect(result).toBeTrue();
+    expect(result).toBe(true);
   });
 
   it('should get car by ID', () => {
     // Setup mock
-    carDataServiceMock.getCar.and.returnValue(mockCar);
-    
+    carDataServiceMock.getCar.mockReturnValue(mockCar);
+
     // Get car
     const result = component.getCarById('car123');
-    
+
     // Should call service and return result
     expect(carDataServiceMock.getCar).toHaveBeenCalledWith('car123');
     expect(result).toBe(mockCar);
@@ -235,7 +232,7 @@ describe('RegistrationComponent', () => {
   it('should select a car', () => {
     // Select car
     component.selectCar('car123');
-    
+
     // Should call service
     expect(carDataServiceMock.selectCar).toHaveBeenCalledWith('car123');
   });
@@ -251,13 +248,13 @@ describe('RegistrationComponent', () => {
     // Create a real DOM element for testing
     const headerDiv = document.createElement('div');
     headerDiv.classList.add('panel-header');
-    
+
     // Create a parent element to act as currentTarget
     const panelDiv = document.createElement('div');
     panelDiv.appendChild(headerDiv);
-    
+
     // Mock getBoundingClientRect on the panel
-    spyOn(panelDiv, 'getBoundingClientRect').and.returnValue({
+    jest.spyOn(panelDiv, 'getBoundingClientRect').mockReturnValue({
       left: 50,
       top: 50,
       right: 350,
@@ -268,10 +265,10 @@ describe('RegistrationComponent', () => {
       y: 50,
       toJSON: () => {}
     });
-    
+
     // Add event listener spies
-    spyOn(document, 'addEventListener');
-    
+    jest.spyOn(document, 'addEventListener');
+
     // Create a more realistic MouseEvent
     const mouseEvent = new MouseEvent('mousedown', {
       bubbles: true,
@@ -279,52 +276,52 @@ describe('RegistrationComponent', () => {
       clientX: 100,
       clientY: 100
     });
-    
+
     // Override target and currentTarget properties
     Object.defineProperty(mouseEvent, 'target', { value: headerDiv });
     Object.defineProperty(mouseEvent, 'currentTarget', { value: panelDiv });
-    
+
     // Start drag
     component.startDrag(mouseEvent);
-    
+
     // Should set dragging state
-    expect(component.isDragging()).toBeTrue();
-    
+    expect(component.isDragging()).toBe(true);
+
     // Should set drag offset
     expect(component.dragOffset()).toEqual({ x: 50, y: 50 });
-    
+
     // Should add event listeners
-    expect(document.addEventListener).toHaveBeenCalledWith('mousemove', jasmine.any(Function));
-    expect(document.addEventListener).toHaveBeenCalledWith('mouseup', jasmine.any(Function));
+    expect(document.addEventListener).toHaveBeenCalledWith('mousemove', expect.any(Function));
+    expect(document.addEventListener).toHaveBeenCalledWith('mouseup', expect.any(Function));
   });
 
   it('should not start drag on non-header elements', () => {
     // Create a real DOM element for testing (not a header)
     const nonHeaderDiv = document.createElement('div');
-    
+
     // Create a parent element to act as currentTarget
     const panelDiv = document.createElement('div');
     panelDiv.appendChild(nonHeaderDiv);
-    
+
     // Add event listener spies
-    spyOn(document, 'addEventListener');
-    
+    jest.spyOn(document, 'addEventListener');
+
     // Create a more realistic MouseEvent
     const mouseEvent = new MouseEvent('mousedown', {
       bubbles: true,
       cancelable: true
     });
-    
+
     // Override target and currentTarget properties
     Object.defineProperty(mouseEvent, 'target', { value: nonHeaderDiv });
     Object.defineProperty(mouseEvent, 'currentTarget', { value: panelDiv });
-    
+
     // Start drag
     component.startDrag(mouseEvent);
-    
+
     // Should not set dragging state
-    expect(component.isDragging()).toBeFalse();
-    
+    expect(component.isDragging()).toBe(false);
+
     // Should not add event listeners
     expect(document.addEventListener).not.toHaveBeenCalled();
   });
@@ -334,16 +331,16 @@ describe('RegistrationComponent', () => {
     // Ensure no user is set
     (registrationServiceMock.currentUser as any).set(null);
     fixture.detectChanges();
-    
+
     // Should show registration form
     const form = fixture.debugElement.query(By.css('.registration-form'));
     expect(form).toBeTruthy();
-    
+
     // Should have name, email, and phone inputs
     expect(fixture.debugElement.query(By.css('#name'))).toBeTruthy();
     expect(fixture.debugElement.query(By.css('#email'))).toBeTruthy();
     expect(fixture.debugElement.query(By.css('#phone'))).toBeTruthy();
-    
+
     // Should have register button
     expect(fixture.debugElement.query(By.css('.register-button'))).toBeTruthy();
   });
@@ -352,15 +349,15 @@ describe('RegistrationComponent', () => {
     // Set current user
     (registrationServiceMock.currentUser as any).set(mockUser);
     fixture.detectChanges();
-    
+
     // Should show user info
     const userInfo = fixture.debugElement.query(By.css('.user-info'));
     expect(userInfo).toBeTruthy();
-    
+
     // Should show user name and email
     expect(userInfo.nativeElement.textContent).toContain(mockUser.name);
     expect(userInfo.nativeElement.textContent).toContain(mockUser.email);
-    
+
     // Should show registered cars section
     expect(fixture.debugElement.query(By.css('.registered-cars'))).toBeTruthy();
   });
@@ -370,11 +367,11 @@ describe('RegistrationComponent', () => {
     (registrationServiceMock.currentUser as any).set(mockUser);
     (carDataServiceMock.selectedCar as any).set(mockCar);
     fixture.detectChanges();
-    
+
     // Should show selected car section
     const selectedCar = fixture.debugElement.query(By.css('.selected-car'));
     expect(selectedCar).toBeTruthy();
-    
+
     // Should show car details
     expect(selectedCar.nativeElement.textContent).toContain(mockCar.name);
     expect(selectedCar.nativeElement.textContent).toContain(mockCar.id);
@@ -386,13 +383,13 @@ describe('RegistrationComponent', () => {
     // Set current user and selected car
     (registrationServiceMock.currentUser as any).set(mockUser);
     (carDataServiceMock.selectedCar as any).set(mockCar);
-    registrationServiceMock.isCarRegisteredToCurrentUser.and.returnValue(false);
+    registrationServiceMock.isCarRegisteredToCurrentUser.mockReturnValue(false);
     fixture.detectChanges();
-    
+
     // Should show register button
     const registerButton = fixture.debugElement.query(By.css('.selected-car .register-button'));
     expect(registerButton).toBeTruthy();
-    
+
     // Should not show already registered message
     expect(fixture.debugElement.query(By.css('.registered-message'))).toBeFalsy();
   });
@@ -401,12 +398,12 @@ describe('RegistrationComponent', () => {
     // Set current user and selected car
     (registrationServiceMock.currentUser as any).set(mockUser);
     (carDataServiceMock.selectedCar as any).set(mockCar);
-    registrationServiceMock.isCarRegisteredToCurrentUser.and.returnValue(true);
+    registrationServiceMock.isCarRegisteredToCurrentUser.mockReturnValue(true);
     fixture.detectChanges();
-    
+
     // Should not show register button
     expect(fixture.debugElement.query(By.css('.selected-car .register-button'))).toBeFalsy();
-    
+
     // Should show already registered message
     const message = fixture.debugElement.query(By.css('.registered-message'));
     expect(message).toBeTruthy();
@@ -416,20 +413,20 @@ describe('RegistrationComponent', () => {
   it('should render registered cars list', () => {
     // Setup mocks
     (registrationServiceMock.currentUser as any).set(mockUser);
-    carDataServiceMock.getCar.and.returnValue(mockCar);
+    carDataServiceMock.getCar.mockReturnValue(mockCar);
     fixture.detectChanges();
-    
+
     // Should show car list
     const carList = fixture.debugElement.query(By.css('.car-list'));
     expect(carList).toBeTruthy();
-    
+
     // Should have one car item
     const carItems = fixture.debugElement.queryAll(By.css('.car-list li'));
     expect(carItems.length).toBe(1);
-    
+
     // Should show car name
     expect(carItems[0].nativeElement.textContent).toContain(mockCar.name);
-    
+
     // Should have unregister button
     expect(carItems[0].query(By.css('.unregister-button'))).toBeTruthy();
   });
@@ -439,12 +436,12 @@ describe('RegistrationComponent', () => {
     const userWithNoCars = { ...mockUser, registeredCars: [] };
     (registrationServiceMock.currentUser as any).set(userWithNoCars);
     fixture.detectChanges();
-    
+
     // Should show no cars message
     const noCarsMessage = fixture.debugElement.query(By.css('.no-cars'));
     expect(noCarsMessage).toBeTruthy();
     expect(noCarsMessage.nativeElement.textContent).toContain('No cars registered');
-    
+
     // Should not show car list
     expect(fixture.debugElement.query(By.css('.car-list'))).toBeFalsy();
   });
@@ -459,14 +456,14 @@ describe('RegistrationComponent', () => {
       registeredCars: []
     };
     fixture.detectChanges();
-    
+
     // Spy on registerUser method
-    spyOn(component, 'registerUser');
-    
+    jest.spyOn(component, 'registerUser');
+
     // Click register button
     const registerButton = fixture.debugElement.query(By.css('.register-button'));
     registerButton.triggerEventHandler('click', null);
-    
+
     // Should call registerUser
     expect(component.registerUser).toHaveBeenCalled();
   });
@@ -475,16 +472,16 @@ describe('RegistrationComponent', () => {
     // Setup mocks
     (registrationServiceMock.currentUser as any).set(mockUser);
     (carDataServiceMock.selectedCar as any).set(mockCar);
-    registrationServiceMock.isCarRegisteredToCurrentUser.and.returnValue(false);
+    registrationServiceMock.isCarRegisteredToCurrentUser.mockReturnValue(false);
     fixture.detectChanges();
-    
+
     // Spy on registerCarToCurrentUser method
-    spyOn(component, 'registerCarToCurrentUser');
-    
+    jest.spyOn(component, 'registerCarToCurrentUser');
+
     // Click register car button
     const registerButton = fixture.debugElement.query(By.css('.selected-car .register-button'));
     registerButton.triggerEventHandler('click', null);
-    
+
     // Should call registerCarToCurrentUser
     expect(component.registerCarToCurrentUser).toHaveBeenCalled();
   });
@@ -494,22 +491,22 @@ describe('RegistrationComponent', () => {
     (registrationServiceMock.currentUser as any).set(mockUser);
     carDataServiceMock.getCar.and.returnValue(mockCar);
     fixture.detectChanges();
-    
+
     // Spy on unregisterCar method
-    spyOn(component, 'unregisterCar');
-    
+    jest.spyOn(component, 'unregisterCar');
+
     // Create mock event
-    const mockEvent = jasmine.createSpyObj('Event', ['stopPropagation']);
-    
+    const mockEvent = { stopPropagation: jest.fn() };
+
     // Get unregister button
     const unregisterButton = fixture.debugElement.query(By.css('.unregister-button'));
-    
+
     // Trigger click with mock event
     unregisterButton.triggerEventHandler('click', mockEvent);
-    
+
     // Should call unregisterCar with car ID
     expect(component.unregisterCar).toHaveBeenCalledWith('car123');
-    
+
     // Should stop propagation
     expect(mockEvent.stopPropagation).toHaveBeenCalled();
   });
@@ -519,26 +516,26 @@ describe('RegistrationComponent', () => {
     (registrationServiceMock.currentUser as any).set(mockUser);
     carDataServiceMock.getCar.and.returnValue(mockCar);
     fixture.detectChanges();
-    
+
     // Spy on selectCar method
-    spyOn(component, 'selectCar');
-    
+    jest.spyOn(component, 'selectCar');
+
     // Click on car item
     const carItem = fixture.debugElement.query(By.css('.car-list li'));
     carItem.triggerEventHandler('click', null);
-    
+
     // Should call selectCar with car ID
     expect(component.selectCar).toHaveBeenCalledWith('car123');
   });
 
   it('should handle click on minimize button', () => {
     // Spy on toggleMinimize method
-    spyOn(component, 'toggleMinimize');
-    
+    jest.spyOn(component, 'toggleMinimize');
+
     // Click minimize button
     const minimizeButton = fixture.debugElement.query(By.css('.minimize-button'));
     minimizeButton.triggerEventHandler('click', null);
-    
+
     // Should call toggleMinimize
     expect(component.toggleMinimize).toHaveBeenCalled();
   });
@@ -547,15 +544,15 @@ describe('RegistrationComponent', () => {
     // Initially expanded
     component.isMinimized.set(false);
     fixture.detectChanges();
-    
+
     // Button should say "Minimize"
     let minimizeButton = fixture.debugElement.query(By.css('.minimize-button'));
     expect(minimizeButton.nativeElement.textContent.trim()).toBe('Minimize');
-    
+
     // Set to minimized
     component.isMinimized.set(true);
     fixture.detectChanges();
-    
+
     // Button should say "Expand"
     minimizeButton = fixture.debugElement.query(By.css('.minimize-button'));
     expect(minimizeButton.nativeElement.textContent.trim()).toBe('Expand');
@@ -565,35 +562,35 @@ describe('RegistrationComponent', () => {
     // Set to minimized
     component.isMinimized.set(true);
     fixture.detectChanges();
-    
+
     // Select a car
     (carDataServiceMock.selectedCar as any).set(mockCar);
     fixture.detectChanges();
-    
+
     // Should auto-expand
-    expect(component.isMinimized()).toBeFalse();
+    expect(component.isMinimized()).toBe(false);
   });
 
   it('should show form validation errors', () => {
     // Submit empty form
     component.validateForm();
     fixture.detectChanges();
-    
+
     // Should show error messages
     const nameError = fixture.debugElement.query(By.css('.error-message'));
     expect(nameError).toBeTruthy();
     expect(nameError.nativeElement.textContent).toContain('required');
-    
+
     // Should add error class to inputs
     const nameInput = fixture.debugElement.query(By.css('#name'));
-    expect(nameInput.classes['error']).toBeTrue();
+    expect(nameInput.classes['error']).toBe(true);
   });
 
   it('should position panel according to position signal', () => {
     // Set position
     component.position.set({ x: 100, y: 150 });
     fixture.detectChanges();
-    
+
     // Panel should have correct position
     const panel = fixture.debugElement.query(By.css('.registration-panel'));
     expect(panel.styles['left.px']).toBe('100');
@@ -604,9 +601,9 @@ describe('RegistrationComponent', () => {
     // Set to minimized
     component.isMinimized.set(true);
     fixture.detectChanges();
-    
+
     // Panel should have minimized class
     const panel = fixture.debugElement.query(By.css('.registration-panel'));
-    expect(panel.classes['minimized']).toBeTrue();
+    expect(panel.classes['minimized']).toBe(true);
   });
 });

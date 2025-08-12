@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { ChangeDetectionStrategy } from '@angular/core';
 import { signal } from '@angular/core';
+import { of, throwError } from 'rxjs';
 import { SideNavComponent } from './side-nav.component';
-import { NavigationService } from '../../services/navigation.service';
-import { CarDataService } from '../../services/car-data.service';
+import { RegistrationService } from '../../services/registration.service';
 import { Car, CarStatus } from '../../models/car.model';
 
 describe('SideNavComponent', () => {
   let component: SideNavComponent;
   let fixture: ComponentFixture<SideNavComponent>;
-  let navigationServiceMock: jasmine.SpyObj<NavigationService>;
-  let carDataServiceMock: jasmine.SpyObj<CarDataService>;
-  
+  let registrationServiceMock: any;
+
   const mockCar: Car = {
     id: 'car123',
     name: 'Test Car',
@@ -25,27 +24,17 @@ describe('SideNavComponent', () => {
 
   beforeEach(async () => {
     // Create mock services
-    navigationServiceMock = jasmine.createSpyObj('NavigationService', [
-      'navigateToMap',
-      'navigateToCars',
-      'navigateToRegistration',
-      'navigateToCar'
-    ], {
-      currentRoute: signal('/map')
-    });
-    
-    carDataServiceMock = jasmine.createSpyObj('CarDataService', [], {
-      selectedCar: signal(null)
-    });
+    registrationServiceMock = {
+      registerUserInApi: jest.fn().mockReturnValue(of({ success: true }))
+    };
 
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule,
+        ReactiveFormsModule,
         SideNavComponent
       ],
       providers: [
-        { provide: NavigationService, useValue: navigationServiceMock },
-        { provide: CarDataService, useValue: carDataServiceMock }
+        { provide: RegistrationService, useValue: registrationServiceMock }
       ]
     })
     // Use Default change detection for testing
@@ -63,131 +52,277 @@ describe('SideNavComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize with correct state based on window width', () => {
-    // Mock window.innerWidth
-    spyOnProperty(window, 'innerWidth').and.returnValue(1024);
-    component.onResize();
-    expect(component.isMobile()).toBeFalse();
-    expect(component.isCollapsed()).toBeFalse();
-
-    // Test mobile view
-    spyOnProperty(window, 'innerWidth').and.returnValue(600);
-    component.onResize();
-    expect(component.isMobile()).toBeTrue();
-    expect(component.isCollapsed()).toBeTrue();
+  it('should initialize with collapsed state', () => {
+    expect(component.isExpanded()).toBe(false);
+    expect(component.activeSection()).toBe('registration');
   });
 
-  it('should toggle navigation when toggle button is clicked', () => {
-    const initialState = component.isCollapsed();
-    const toggleButton = fixture.debugElement.query(By.css('.nav-toggle'));
-    
+  it('should toggle expanded state', () => {
+    const initialState = component.isExpanded();
+    component.toggleExpand();
+    expect(component.isExpanded()).toBe(!initialState);
+  });
+
+  it('should set active section and expand', () => {
+    component.isExpanded.set(false);
+    component.setActiveSection('alerts');
+
+    expect(component.activeSection()).toBe('alerts');
+    expect(component.isExpanded()).toBe(true);
+  });
+
+  it('should not change section if already active', () => {
+    component.activeSection.set('registration');
+    component.isExpanded.set(false);
+
+    component.setActiveSection('registration');
+
+    expect(component.activeSection()).toBe('registration');
+    expect(component.isExpanded()).toBe(false);
+  });
+
+  it('should expand and set registration section when car is selected', () => {
+    component.isExpanded.set(false);
+    component.activeSection.set('alerts');
+
+    // Set selected car input
+    fixture.componentRef.setInput('selectedCar', mockCar);
+    fixture.detectChanges();
+
+    expect(component.isExpanded()).toBe(true);
+    expect(component.activeSection()).toBe('registration');
+  });
+
+  it('should compute hasSelectedCar correctly', () => {
+    // No car selected
+    fixture.componentRef.setInput('selectedCar', null);
+    fixture.detectChanges();
+    expect(component.hasSelectedCar()).toBe(false);
+
+    // Car selected
+    fixture.componentRef.setInput('selectedCar', mockCar);
+    fixture.detectChanges();
+    expect(component.hasSelectedCar()).toBe(true);
+  });
+
+  it('should validate form correctly', () => {
+    // Empty form should be invalid
+    component.registrationForm.patchValue({
+      name: '',
+      email: '',
+      address: '',
+      license: '',
+      preferredCarType: '',
+      rentalDuration: '',
+      pickupLocation: ''
+    });
+
+    // Mark all fields as touched to trigger validation
+    Object.keys(component.registrationForm.controls).forEach(key => {
+      component.registrationForm.get(key)?.markAsTouched();
+    });
+
+    fixture.detectChanges();
+
+    expect(component.registrationForm.valid).toBe(false);
+    expect(component.formErrors().name).toBeTruthy();
+    expect(component.formErrors().email).toBeTruthy();
+  });
+
+  it('should submit form successfully', () => {
+    // Set up valid form data
+    component.registrationForm.patchValue({
+      name: 'Test User',
+      email: 'test@example.com',
+      phone: '123-456-7890',
+      address: '123 Test St',
+      license: 'DL12345678',
+      preferredCarType: 'economy',
+      rentalDuration: 7,
+      pickupLocation: 'airport'
+    });
+
+    // Set selected car
+    fixture.componentRef.setInput('selectedCar', mockCar);
+    fixture.detectChanges();
+
+    // Submit form
+    component.onSubmit();
+
+    expect(registrationServiceMock.registerUserInApi).toHaveBeenCalledWith({
+      name: 'Test User',
+      email: 'test@example.com',
+      phone: '123-456-7890',
+      address: '123 Test St',
+      license: 'DL12345678',
+      preferredCarType: 'economy',
+      rentalDuration: 7,
+      pickupLocation: 'airport',
+      registeredCars: ['car123']
+    });
+
+    expect(component.submissionSuccess()).toBe(true);
+    expect(component.isSubmitting()).toBe(false);
+  });
+
+  it('should handle form submission error', () => {
+    const errorMessage = 'Registration failed';
+    registrationServiceMock.registerUserInApi.mockReturnValue(
+      throwError(() => new Error(errorMessage))
+    );
+
+    // Set up valid form data
+    component.registrationForm.patchValue({
+      name: 'Test User',
+      email: 'test@example.com',
+      address: '123 Test St',
+      license: 'DL12345678',
+      preferredCarType: 'economy',
+      rentalDuration: 7,
+      pickupLocation: 'airport'
+    });
+
+    // Set selected car
+    fixture.componentRef.setInput('selectedCar', mockCar);
+    fixture.detectChanges();
+
+    // Submit form
+    component.onSubmit();
+
+    expect(component.submissionError()).toBe(errorMessage);
+    expect(component.isSubmitting()).toBe(false);
+  });
+
+  it('should not submit form without selected car', () => {
+    // Set up valid form data but no selected car
+    component.registrationForm.patchValue({
+      name: 'Test User',
+      email: 'test@example.com',
+      address: '123 Test St',
+      license: 'DL12345678',
+      preferredCarType: 'economy',
+      rentalDuration: 7,
+      pickupLocation: 'airport'
+    });
+
+    fixture.componentRef.setInput('selectedCar', null);
+    fixture.detectChanges();
+
+    // Submit form
+    component.onSubmit();
+
+    expect(registrationServiceMock.registerUserInApi).not.toHaveBeenCalled();
+  });
+
+  it('should emit close event', () => {
+    const closeSpy = jest.fn();
+    component.close.subscribe(closeSpy);
+
+    component.closePanel();
+
+    expect(closeSpy).toHaveBeenCalled();
+  });
+
+  it('should render registration section when active', () => {
+    component.isExpanded.set(true);
+    component.activeSection.set('registration');
+    fixture.detectChanges();
+
+    const registrationSection = fixture.debugElement.query(By.css('.section h3'));
+    expect(registrationSection.nativeElement.textContent).toContain('Car Registration');
+  });
+
+  it('should render alerts section when active', () => {
+    component.isExpanded.set(true);
+    component.activeSection.set('alerts');
+    fixture.detectChanges();
+
+    const alertsSection = fixture.debugElement.query(By.css('.section h3'));
+    expect(alertsSection.nativeElement.textContent).toContain('Alerts');
+  });
+
+  it('should render settings section when active', () => {
+    component.isExpanded.set(true);
+    component.activeSection.set('settings');
+    fixture.detectChanges();
+
+    const settingsSection = fixture.debugElement.query(By.css('.section h3'));
+    expect(settingsSection.nativeElement.textContent).toContain('Settings');
+  });
+
+  it('should show form when not submitted successfully', () => {
+    component.isExpanded.set(true);
+    component.activeSection.set('registration');
+    component.submissionSuccess.set(false);
+    fixture.detectChanges();
+
+    const form = fixture.debugElement.query(By.css('form'));
+    expect(form).toBeTruthy();
+  });
+
+  it('should show success message when submitted successfully', () => {
+    component.isExpanded.set(true);
+    component.activeSection.set('registration');
+    component.submissionSuccess.set(true);
+    fixture.detectChanges();
+
+    const successMessage = fixture.debugElement.query(By.css('.success-message'));
+    expect(successMessage).toBeTruthy();
+    expect(successMessage.nativeElement.textContent).toContain('Registration successful');
+  });
+
+  it('should show error message when submission fails', () => {
+    component.isExpanded.set(true);
+    component.activeSection.set('registration');
+    component.submissionError.set('Test error message');
+    fixture.detectChanges();
+
+    const errorMessage = fixture.debugElement.query(By.css('.error-message'));
+    expect(errorMessage).toBeTruthy();
+    expect(errorMessage.nativeElement.textContent).toContain('Test error message');
+  });
+
+  it('should show no car selected message when no car is selected', () => {
+    component.isExpanded.set(true);
+    component.activeSection.set('registration');
+    component.submissionSuccess.set(false);
+    fixture.componentRef.setInput('selectedCar', null);
+    fixture.detectChanges();
+
+    const noCarMessage = fixture.debugElement.query(By.css('.no-car-selected'));
+    expect(noCarMessage).toBeTruthy();
+    expect(noCarMessage.nativeElement.textContent).toContain('Please select a car');
+  });
+
+  it('should show selected car info when car is selected', () => {
+    component.isExpanded.set(true);
+    component.activeSection.set('registration');
+    component.submissionSuccess.set(false);
+    fixture.componentRef.setInput('selectedCar', mockCar);
+    fixture.detectChanges();
+
+    const selectedCarInfo = fixture.debugElement.query(By.css('.selected-car-info'));
+    expect(selectedCarInfo).toBeTruthy();
+    expect(selectedCarInfo.nativeElement.textContent).toContain(mockCar.name);
+    expect(selectedCarInfo.nativeElement.textContent).toContain(mockCar.id);
+  });
+
+  it('should handle tab clicks', () => {
+    component.isExpanded.set(true);
+    fixture.detectChanges();
+
+    const alertsTab = fixture.debugElement.queryAll(By.css('.tab'))[1];
+    alertsTab.triggerEventHandler('click', null);
+
+    expect(component.activeSection()).toBe('alerts');
+  });
+
+  it('should handle toggle button click', () => {
+    const initialState = component.isExpanded();
+
+    const toggleButton = fixture.debugElement.query(By.css('.side-nav-toggle'));
     toggleButton.triggerEventHandler('click', null);
-    expect(component.isCollapsed()).toBe(!initialState);
-    
-    toggleButton.triggerEventHandler('click', null);
-    expect(component.isCollapsed()).toBe(initialState);
-  });
 
-  it('should navigate to map when map link is clicked', () => {
-    const mapLink = fixture.debugElement.query(By.css('.nav-link:nth-child(1)'));
-    mapLink.triggerEventHandler('click', null);
-    
-    expect(navigationServiceMock.navigateToMap).toHaveBeenCalled();
-  });
-
-  it('should navigate to cars when car list link is clicked', () => {
-    const carsLink = fixture.debugElement.query(By.css('.nav-link:nth-child(2)'));
-    carsLink.triggerEventHandler('click', null);
-    
-    expect(navigationServiceMock.navigateToCars).toHaveBeenCalled();
-  });
-
-  it('should navigate to registration when registration link is clicked', () => {
-    const registrationLink = fixture.debugElement.query(By.css('.nav-link:nth-child(3)'));
-    registrationLink.triggerEventHandler('click', null);
-    
-    expect(navigationServiceMock.navigateToRegistration).toHaveBeenCalled();
-  });
-
-  it('should auto-collapse on mobile after navigation', () => {
-    // Set to mobile view
-    spyOnProperty(window, 'innerWidth').and.returnValue(600);
-    component.onResize();
-    component.isCollapsed.set(false);
-    
-    // Navigate
-    component.navigate('/map');
-    
-    expect(component.isCollapsed()).toBeTrue();
-  });
-
-  it('should correctly identify active routes', () => {
-    // Set current route to /map
-    (navigationServiceMock.currentRoute as any).set('/map');
-    expect(component.isRouteActive('/map')).toBeTrue();
-    expect(component.isRouteActive('/cars')).toBeFalse();
-    
-    // Set current route to /cars
-    (navigationServiceMock.currentRoute as any).set('/cars');
-    expect(component.isRouteActive('/map')).toBeFalse();
-    expect(component.isRouteActive('/cars')).toBeTrue();
-  });
-
-  it('should display selected car information when a car is selected', () => {
-    // Initially no car is selected
-    expect(fixture.debugElement.query(By.css('.selected-car'))).toBeNull();
-    
-    // Select a car
-    (carDataServiceMock.selectedCar as any).set(mockCar);
-    fixture.detectChanges();
-    
-    // Car info should be displayed when not collapsed
-    component.isCollapsed.set(false);
-    fixture.detectChanges();
-    
-    const carInfo = fixture.debugElement.query(By.css('.selected-car'));
-    expect(carInfo).not.toBeNull();
-    expect(carInfo.query(By.css('.car-name')).nativeElement.textContent).toContain(mockCar.name);
-    expect(carInfo.query(By.css('.car-id')).nativeElement.textContent).toContain(mockCar.id);
-    expect(carInfo.query(By.css('.status-badge')).nativeElement.textContent.trim()).toBe(mockCar.status);
-  });
-
-  it('should navigate to car when view car button is clicked', () => {
-    // Select a car
-    (carDataServiceMock.selectedCar as any).set(mockCar);
-    component.isCollapsed.set(false);
-    fixture.detectChanges();
-    
-    const viewCarBtn = fixture.debugElement.query(By.css('.view-car-btn'));
-    viewCarBtn.triggerEventHandler('click', null);
-    
-    expect(navigationServiceMock.navigateToCar).toHaveBeenCalledWith(mockCar.id);
-  });
-
-  it('should hide car info when collapsed', () => {
-    // Select a car
-    (carDataServiceMock.selectedCar as any).set(mockCar);
-    
-    // Collapse the nav
-    component.isCollapsed.set(true);
-    fixture.detectChanges();
-    
-    // Car info should be hidden
-    expect(fixture.debugElement.query(By.css('.selected-car'))).toBeNull();
-  });
-
-  it('should show correct toggle icon based on collapsed state', () => {
-    const getToggleIcon = () => 
-      fixture.debugElement.query(By.css('.nav-toggle .material-icons')).nativeElement.textContent.trim();
-    
-    // When collapsed
-    component.isCollapsed.set(true);
-    fixture.detectChanges();
-    expect(getToggleIcon()).toBe('menu');
-    
-    // When expanded
-    component.isCollapsed.set(false);
-    fixture.detectChanges();
-    expect(getToggleIcon()).toBe('close');
+    expect(component.isExpanded()).toBe(!initialState);
   });
 });
