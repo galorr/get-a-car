@@ -34,9 +34,6 @@ export function testDependencies() {
     mapService,
     navigationService,
     registrationService,
-    apiService
+    apiService,
   };
 }
-
-// Log a message to confirm the file was loaded
-console.log('Dependency test file loaded successfully');

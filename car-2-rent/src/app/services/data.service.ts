@@ -167,11 +167,6 @@ export class DataService {
     this.usersSignal().filter(user => user.registeredCars.length > 0)
   );
 
-  constructor() {
-    console.log('[DataService] Constructor initialized');
-    console.log('[DataService] Constructor completed');
-  }
-
   // ===== CACHE METHODS =====
 
   /**
@@ -248,17 +243,13 @@ export class DataService {
    * Load cars from API or mock data
    */
   loadCars(): Observable<Car[]> {
-    console.log('[DataService] loadCars: Starting to load car data');
     this.carLoadingSignal.set(true);
     this.carErrorSignal.set(null);
 
     // Use mock data in development mode
     if (environment.mockDataEnabled) {
-      console.log('[DataService] loadCars: Using mock data (environment.mockDataEnabled=true)');
-
       return this.httpService.get<Car[]>('assets/mock-data/cars.json').pipe(
         tap(cars => {
-          console.log('[DataService] loadCars: Received mock data', { count: cars.length });
           this.carsSignal.set(cars);
         }),
         catchError(error => {
@@ -273,12 +264,10 @@ export class DataService {
     }
 
     // Use real API in production mode
-    console.log('[DataService] loadCars: Using real API');
 
     const cacheKey = API_ENDPOINTS.CARS;
     const cachedData = this.cacheService.get<Car[]>(cacheKey);
     if (cachedData) {
-      console.log('[DataService] loadCars: Using cached data');
       this.carsSignal.set(cachedData);
       this.carLoadingSignal.set(false);
       return of(cachedData);
@@ -286,11 +275,9 @@ export class DataService {
 
     return this.httpService.get<GetCarsResponse>(API_ENDPOINTS.CARS).pipe(
       map(response => {
-        console.log('[DataService] loadCars: Mapping API response to car models');
         return response.data.map(carResponse => mapCarResponseToCar(carResponse));
       }),
       tap(cars => {
-        console.log('[DataService] loadCars: Setting cars signal');
         this.carsSignal.set(cars);
         this.cacheService.set(cacheKey, cars);
       }),
@@ -704,17 +691,14 @@ export class DataService {
    * Load users from API or mock data
    */
   loadUsers(): Observable<User[]> {
-    console.log('[DataService] loadUsers: Starting to load user data');
     this.userLoadingSignal.set(true);
     this.userErrorSignal.set(null);
 
     // Use mock data in development mode
     if (environment.mockDataEnabled) {
-      console.log('[DataService] loadUsers: Using mock data (environment.mockDataEnabled=true)');
 
       return this.httpService.get<User[]>('assets/mock-data/users.json').pipe(
         tap(users => {
-          console.log('[DataService] loadUsers: Received mock data', { count: users.length });
           this.usersSignal.set(users);
         }),
         catchError(error => {
@@ -729,12 +713,10 @@ export class DataService {
     }
 
     // Use real API in production mode
-    console.log('[DataService] loadUsers: Using real API');
 
     const cacheKey = API_ENDPOINTS.USERS;
     const cachedData = this.cacheService.get<User[]>(cacheKey);
     if (cachedData) {
-      console.log('[DataService] loadUsers: Using cached data');
       this.usersSignal.set(cachedData);
       this.userLoadingSignal.set(false);
       return of(cachedData);
@@ -742,11 +724,9 @@ export class DataService {
 
     return this.httpService.get<GetUsersResponse>(API_ENDPOINTS.USERS).pipe(
       map(response => {
-        console.log('[DataService] loadUsers: Mapping API response to user models');
         return response.data.map(userResponse => mapUserResponseToUser(userResponse));
       }),
       tap(users => {
-        console.log('[DataService] loadUsers: Setting users signal');
         this.usersSignal.set(users);
         this.cacheService.set(cacheKey, users);
       }),

@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
 import type { OnInit } from '@angular/core';
 import {
   Component,
@@ -9,11 +8,12 @@ import {
   inject,
   HostListener,
 } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 // Import components
 import { CarGridComponent } from './components/car-grid/car-grid.component';
-import { MapComponent } from './components/map/map.component';
-import { RegistrationComponent } from './components/registration/registration.component';
+// import { MapComponent } from './components/map/map.component';
+// import { RegistrationComponent } from './components/registration/registration.component';
 import { SideNavComponent } from './components/side-nav/side-nav.component';
 
 // Import services
@@ -27,9 +27,9 @@ import { NavigationService } from './services/navigation.service';
   imports: [
     CommonModule,
     RouterOutlet,
-    MapComponent,
+    // MapComponent,
     CarGridComponent,
-    RegistrationComponent,
+    // RegistrationComponent,
     SideNavComponent,
   ],
   templateUrl: './app.component.html',

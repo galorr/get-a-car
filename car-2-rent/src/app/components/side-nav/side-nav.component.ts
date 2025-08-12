@@ -32,6 +32,9 @@ export class SideNavComponent {
     'registration'
   );
 
+  // Secondary panel state
+  isSecondaryPanelOpen = signal(false);
+
   // Selected car using signal input
   selectedCar = input<Car | null>(null);
 
@@ -105,14 +108,26 @@ export class SideNavComponent {
   }
 
   /**
+   * Toggle secondary panel
+   */
+  toggleSecondaryPanel(): void {
+    this.isSecondaryPanelOpen.update(value => !value);
+  }
+
+  /**
    * Set active section
    */
   setActiveSection(section: 'registration' | 'alerts' | 'settings'): void {
-    // Only change section if it's different from current active section
-    if (this.activeSection() !== section) {
+    // If clicking the same section, toggle the secondary panel
+    if (this.activeSection() === section) {
+      this.toggleSecondaryPanel();
+    } else {
+      // If changing to a different section, set it active and open the secondary panel
       this.activeSection.set(section);
-      this.isExpanded.set(true);
+      this.isSecondaryPanelOpen.set(true);
     }
+    // Always ensure the main sidebar is expanded
+    this.isExpanded.set(true);
   }
 
   /**

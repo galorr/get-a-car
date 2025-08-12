@@ -30,10 +30,8 @@ export class CacheService {
   public cacheKeys = computed(() => Array.from(this.cacheSignal().keys()));
 
   constructor() {
-    console.log('[CacheService] Constructor initialized');
     // Setup periodic cache cleanup
     setInterval(() => this.cleanupExpiredEntries(), 60 * 1000); // Cleanup every minute
-    console.log('[CacheService] Constructor completed');
   }
 
   /**

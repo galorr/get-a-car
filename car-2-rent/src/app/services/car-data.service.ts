@@ -9,18 +9,12 @@ import { DataService } from './data.service';
 export class CarDataService {
   private dataService = inject(DataService);
 
-  constructor() {
-    console.log('[CarDataService] Constructor initialized');
-    console.log('[CarDataService] Constructor completed');
-  }
-
   /**
    * Initialize the service - should be called after all services are initialized
    * This prevents circular dependencies during initialization
    */
   initialize(): void {
     console.log('[CarDataService] Initialize method called');
-    console.log('[CarDataService] Initialization complete');
   }
 
   // ===== DELEGATE METHODS TO DATA SERVICE =====
@@ -29,7 +23,6 @@ export class CarDataService {
    * Load cars from API or mock data
    */
   loadCars(): Observable<Car[]> {
-    console.log('[CarDataService] loadCars: Delegating to DataService');
     return this.dataService.loadCars();
   }
 

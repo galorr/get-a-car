@@ -18,10 +18,6 @@ export class HttpService {
   private baseUrl = environment.apiUrl;
   private retryConfig: RetryConfig = DEFAULT_RETRY_CONFIG;
 
-  constructor() {
-    console.log('[HttpService] Constructor initialized');
-  }
-
   /**
    * Configure retry behavior for failed requests
    */
@@ -200,7 +196,6 @@ export class HttpService {
             retryableStatusCodes.includes(error.status) &&
             error.retryCount < maxRetries
           ) {
-            console.log(`Retrying request (${error.retryCount + 1}/${maxRetries})...`);
 
             // Add or increment retry count
             error.retryCount = (error.retryCount || 0) + 1;

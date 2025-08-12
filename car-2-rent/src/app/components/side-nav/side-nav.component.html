@@ -1,53 +1,66 @@
-<div class="side-nav" [class.expanded]="isExpanded()">
-  <!-- Side Nav Toggle Button -->
-  <div class="side-nav-toggle" (click)="toggleExpand()">
-    <div class="toggle-icon">
-      {{ isExpanded() ? '>' : '<' }}
+<div class="side-nav-container">
+  <!-- Primary Sidebar (Icon Only) -->
+  <div class="primary-sidebar">
+    <!-- Logo/Brand -->
+    <div class="sidebar-logo">
+      <span class="material-icons logo-icon">directions_car</span>
+      @if (isExpanded()) {
+        <span class="logo-text">Car2Rent</span>
+      }
+    </div>
+
+    <!-- Navigation Items -->
+    <div class="nav-items">
+      <!-- Registration -->
+      <div class="nav-item" [class.active]="activeSection() === 'registration'">
+        <button class="nav-button" (click)="setActiveSection('registration')">
+          <span class="material-icons">app_registration</span>
+          @if (isExpanded()) {
+            <span class="nav-text">Registration</span>
+          }
+        </button>
+      </div>
+
+      <!-- Alerts -->
+      <div class="nav-item" [class.active]="activeSection() === 'alerts'">
+        <button class="nav-button" (click)="setActiveSection('alerts')">
+          <span class="material-icons">notifications</span>
+          @if (isExpanded()) {
+            <span class="nav-text">Alerts</span>
+          }
+        </button>
+      </div>
+
+      <!-- Settings -->
+      <div class="nav-item" [class.active]="activeSection() === 'settings'">
+        <button class="nav-button" (click)="setActiveSection('settings')">
+          <span class="material-icons">settings</span>
+          @if (isExpanded()) {
+            <span class="nav-text">Settings</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- User Profile -->
+    <div class="user-profile">
+      <div class="profile-avatar">
+        <span class="material-icons">account_circle</span>
+      </div>
+      @if (isExpanded()) {
+        <div class="profile-info">
+          <div class="profile-name">John Doe</div>
+          <div class="profile-email">john@example.com</div>
+        </div>
+      }
     </div>
   </div>
 
-  <!-- Side Nav Content -->
-  <div class="side-nav-content">
-    <!-- Navigation Tabs -->
-    <div class="nav-tabs">
-      <div class="tab"
-           [class.active]="activeSection() === 'registration'"
-           (click)="setActiveSection('registration')">
-        <span class="tab-icon material-icons" [class.active-icon]="activeSection() === 'registration'">registration</span>
-        @if (isExpanded()) {
-          <span class="tab-label">Registration</span>
-        }
-        @if (activeSection() === 'registration') {
-          <div class="active-indicator"></div>
-        }
-      </div>
-      <div class="tab"
-           [class.active]="activeSection() === 'alerts'"
-           (click)="setActiveSection('alerts')">
-        <span class="tab-icon material-icons" [class.active-icon]="activeSection() === 'alerts'">notifications</span>
-        @if (isExpanded()) {
-          <span class="tab-label">Alerts</span>
-        }
-        @if (activeSection() === 'alerts') {
-          <div class="active-indicator"></div>
-        }
-      </div>
-      <div class="tab"
-           [class.active]="activeSection() === 'settings'"
-           (click)="setActiveSection('settings')">
-        <span class="tab-icon material-icons" [class.active-icon]="activeSection() === 'settings'">settings</span>
-        @if (isExpanded()) {
-          <span class="tab-label">Settings</span>
-        }
-        @if (activeSection() === 'settings') {
-          <div class="active-indicator"></div>
-        }
-      </div>
-    </div>
+  <!-- Secondary Sidebar (Content) -->
+  <div class="secondary-sidebar" [class.open]="isSecondaryPanelOpen()">
 
     <!-- Section Content -->
-    @if (isExpanded()) {
-      <div class="section-content">
+    <div class="section-content">
         <!-- Registration Section -->
         @if (activeSection() === 'registration') {
           <div class="section">
@@ -471,7 +484,6 @@
             </div>
           </div>
         }
-      </div>
-    }
+    </div>
   </div>
 </div>

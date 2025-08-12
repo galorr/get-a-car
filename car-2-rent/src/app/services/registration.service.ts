@@ -34,11 +34,6 @@ export class RegistrationService {
     this.registrationFormMinimizedSignal()
   );
 
-  constructor() {
-    console.log('[RegistrationService] Constructor initialized');
-    console.log('[RegistrationService] Constructor completed');
-  }
-
   // ===== USER DATA METHODS (DELEGATED TO DATA SERVICE) =====
 
   /**
