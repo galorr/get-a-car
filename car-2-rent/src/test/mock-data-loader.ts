@@ -1,8 +1,10 @@
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { Car } from '../app/models/car.model';
-import { User } from '../app/models/user.model';
-import { ApiResponse, PaginatedResponse } from '../app/models/api.model';
+import type { HttpClient } from '@angular/common/http';
+import type { Observable } from 'rxjs';
+import { of } from 'rxjs';
+
+import type { ApiResponse, PaginatedResponse } from '../app/models/api.model';
+import type { Car } from '../app/models/car.model';
+import type { User } from '../app/models/user.model';
 
 // Mock cars data
 export const MOCK_CARS: Car[] = [
@@ -22,7 +24,7 @@ export const MOCK_CARS: Car[] = [
     color: 'Silver',
     features: ['Bluetooth', 'Backup Camera', 'Cruise Control'],
     rentalRate: 45,
-    imageUrl: 'assets/images/cars/toyota-corolla.jpg'
+    imageUrl: 'assets/images/cars/toyota-corolla.jpg',
   },
   {
     id: 'car-002',
@@ -40,7 +42,7 @@ export const MOCK_CARS: Car[] = [
     color: 'Blue',
     features: ['Apple CarPlay', 'Android Auto', 'Lane Assist'],
     rentalRate: 48,
-    imageUrl: 'assets/images/cars/honda-civic.jpg'
+    imageUrl: 'assets/images/cars/honda-civic.jpg',
   },
   {
     id: 'car-003',
@@ -58,8 +60,8 @@ export const MOCK_CARS: Car[] = [
     color: 'Red',
     features: ['Bluetooth', 'Heated Seats', 'Keyless Entry'],
     rentalRate: 42,
-    imageUrl: 'assets/images/cars/ford-focus.jpg'
-  }
+    imageUrl: 'assets/images/cars/ford-focus.jpg',
+  },
 ];
 
 // Mock users data
@@ -77,13 +79,13 @@ export const MOCK_USERS: User[] = [
       city: 'London',
       state: 'Greater London',
       zipCode: 'SW1A 1AA',
-      country: 'United Kingdom'
+      country: 'United Kingdom',
     },
     driverLicense: {
       number: 'DL12345678',
       state: 'Greater London',
       expirationDate: new Date('2027-05-15T00:00:00Z'),
-      imageUrl: 'assets/images/licenses/license-001.jpg'
+      imageUrl: 'assets/images/licenses/license-001.jpg',
     },
     paymentMethods: [
       {
@@ -91,16 +93,16 @@ export const MOCK_USERS: User[] = [
         type: 'credit_card',
         lastFour: '4242',
         expirationDate: '05/27',
-        isDefault: true
+        isDefault: true,
       },
       {
         id: 'pm-002',
         type: 'paypal',
-        isDefault: false
-      }
+        isDefault: false,
+      },
     ],
     createdAt: new Date('2024-01-15T10:30:00Z'),
-    lastLogin: new Date('2025-08-09T14:25:00Z')
+    lastLogin: new Date('2025-08-09T14:25:00Z'),
   },
   {
     id: 'user-002',
@@ -115,13 +117,13 @@ export const MOCK_USERS: User[] = [
       city: 'London',
       state: 'Greater London',
       zipCode: 'E1 6AN',
-      country: 'United Kingdom'
+      country: 'United Kingdom',
     },
     driverLicense: {
       number: 'DL87654321',
       state: 'Greater London',
       expirationDate: new Date('2028-08-22T00:00:00Z'),
-      imageUrl: 'assets/images/licenses/license-002.jpg'
+      imageUrl: 'assets/images/licenses/license-002.jpg',
     },
     paymentMethods: [
       {
@@ -129,12 +131,12 @@ export const MOCK_USERS: User[] = [
         type: 'credit_card',
         lastFour: '1234',
         expirationDate: '09/28',
-        isDefault: true
-      }
+        isDefault: true,
+      },
     ],
     createdAt: new Date('2023-11-05T09:15:00Z'),
-    lastLogin: new Date('2025-08-10T08:45:00Z')
-  }
+    lastLogin: new Date('2025-08-10T08:45:00Z'),
+  },
 ];
 
 // Mock API responses
@@ -145,29 +147,31 @@ export class MockApiResponses {
       data: {
         data: MOCK_CARS.map(car => ({
           ...car,
-          lastUpdated: car.lastUpdated.toISOString()
+          lastUpdated: car.lastUpdated.toISOString(),
         })),
         total: MOCK_CARS.length,
         page: 1,
         limit: 10,
-        totalPages: 1
+        totalPages: 1,
       },
       success: true,
       message: 'Cars retrieved successfully',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
   static getCarByIdResponse(id: string): ApiResponse<any> {
     const car = MOCK_CARS.find(c => c.id === id);
     return {
-      data: car ? {
-        ...car,
-        lastUpdated: car.lastUpdated.toISOString()
-      } : null,
+      data: car
+        ? {
+            ...car,
+            lastUpdated: car.lastUpdated.toISOString(),
+          }
+        : null,
       success: !!car,
       message: car ? 'Car retrieved successfully' : 'Car not found',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -177,39 +181,46 @@ export class MockApiResponses {
       data: {
         data: MOCK_USERS.map(user => ({
           ...user,
-          driverLicense: user.driverLicense ? {
-            ...user.driverLicense,
-            expirationDate: user.driverLicense.expirationDate.toISOString()
-          } : undefined,
+          driverLicense: user.driverLicense
+            ? {
+                ...user.driverLicense,
+                expirationDate: user.driverLicense.expirationDate.toISOString(),
+              }
+            : undefined,
           createdAt: user.createdAt?.toISOString(),
-          lastLogin: user.lastLogin?.toISOString()
+          lastLogin: user.lastLogin?.toISOString(),
         })),
         total: MOCK_USERS.length,
         page: 1,
         limit: 10,
-        totalPages: 1
+        totalPages: 1,
       },
       success: true,
       message: 'Users retrieved successfully',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
   static getUserByIdResponse(id: string): ApiResponse<any> {
     const user = MOCK_USERS.find(u => u.id === id);
     return {
-      data: user ? {
-        ...user,
-        driverLicense: user.driverLicense ? {
-          ...user.driverLicense,
-          expirationDate: user.driverLicense.expirationDate.toISOString()
-        } : undefined,
-        createdAt: user.createdAt?.toISOString(),
-        lastLogin: user.lastLogin?.toISOString()
-      } : null,
+      data: user
+        ? {
+            ...user,
+            driverLicense: user.driverLicense
+              ? {
+                  ...user.driverLicense,
+                  expirationDate:
+                    user.driverLicense.expirationDate.toISOString(),
+                }
+              : undefined,
+            createdAt: user.createdAt?.toISOString(),
+            lastLogin: user.lastLogin?.toISOString(),
+          }
+        : null,
       success: !!user,
       message: user ? 'User retrieved successfully' : 'User not found',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 }
@@ -236,7 +247,7 @@ export class MockHttpClient {
       data: body,
       success: true,
       message: 'Operation successful',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -245,7 +256,7 @@ export class MockHttpClient {
       data: body,
       success: true,
       message: 'Operation successful',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -254,7 +265,7 @@ export class MockHttpClient {
       data: { id: url.split('/').pop() },
       success: true,
       message: 'Operation successful',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -263,7 +274,7 @@ export class MockHttpClient {
       data: body,
       success: true,
       message: 'Operation successful',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 }

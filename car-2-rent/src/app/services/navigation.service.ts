@@ -1,8 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { CarDataService } from './car-data.service';
-import { MapService } from './map.service';
+import { DataService } from './data.service';
 import { Car } from '../models/car.model';
 
 @Injectable({
@@ -10,12 +9,11 @@ import { Car } from '../models/car.model';
 })
 export class NavigationService {
   private router = inject(Router);
-  private carDataService = inject(CarDataService);
-  private mapService = inject(MapService);
+  private dataService = inject(DataService);
 
   // Signal to track current route
   currentRoute = signal<string>('');
-  
+
   // Signal to track loading state during navigation
   isNavigating = signal<boolean>(false);
 
@@ -59,14 +57,14 @@ export class NavigationService {
    */
   navigateToCar(carId: string): void {
     this.isNavigating.set(true);
-    
+
     // Get the car data
-    const car = this.carDataService.getCar(carId);
-    
+    const car = this.dataService.cars().find(car => car.id === carId);
+
     if (car) {
-      // Select the car in the car data service
-      this.carDataService.selectCar(carId);
-      
+      // Select the car in the data service
+      this.dataService.selectCar(carId);
+
       // Navigate to the car route
       this.router.navigate(['/car', carId]);
     } else {
@@ -83,19 +81,13 @@ export class NavigationService {
    */
   navigateToLocation(latitude: number, longitude: number, zoom?: number): void {
     this.isNavigating.set(true);
-    
-    // Set the map center and zoom
-    this.mapService.setMapCenter(latitude, longitude);
-    if (zoom) {
-      this.mapService.setMapZoom(zoom);
-    }
-    
-    // Navigate to the map view
-    this.router.navigate(['/map'], { 
-      queryParams: { 
-        lat: latitude, 
+
+    // Navigate to the map view with query parameters
+    this.router.navigate(['/map'], {
+      queryParams: {
+        lat: latitude,
         lng: longitude,
-        zoom: zoom || this.mapService.mapZoom()
+        zoom: zoom || 13 // Default zoom level
       }
     });
   }
@@ -104,20 +96,21 @@ export class NavigationService {
    * Parse URL parameters to set initial map state
    * @param params URL parameters
    */
-  parseMapParams(params: any): void {
+  parseMapParams(params: any): { lat: number, lng: number, zoom?: number } | null {
     if (params.lat && params.lng) {
       const lat = parseFloat(params.lat);
       const lng = parseFloat(params.lng);
       const zoom = params.zoom ? parseInt(params.zoom, 10) : undefined;
-      
+
       if (!isNaN(lat) && !isNaN(lng)) {
-        this.mapService.setMapCenter(lat, lng);
-        
-        if (zoom && !isNaN(zoom)) {
-          this.mapService.setMapZoom(zoom);
-        }
+        return {
+          lat,
+          lng,
+          ...(zoom !== undefined && !isNaN(zoom) ? { zoom } : {})
+        };
       }
     }
+    return null;
   }
 
   /**
@@ -125,15 +118,11 @@ export class NavigationService {
    * @param carId The ID of the car
    */
   handleCarDeepLink(carId: string): void {
-    const car = this.carDataService.getCar(carId);
-    
+    const car = this.dataService.cars().find(car => car.id === carId);
+
     if (car) {
       // Select the car
-      this.carDataService.selectCar(carId);
-      
-      // Center the map on the car's location
-      this.mapService.setMapCenter(car.latitude, car.longitude);
-      this.mapService.setMapZoom(16); // Zoom in to see the car clearly
+      this.dataService.selectCar(carId);
     }
   }
 

@@ -2,7 +2,7 @@
   "data": {
     "id": "car-001",
     "name": "Toyota Corolla",
-    "latitude": 51.510,
+    "latitude": 51.51,
     "longitude": -0.095,
     "status": "available",
     "model": "Corolla",

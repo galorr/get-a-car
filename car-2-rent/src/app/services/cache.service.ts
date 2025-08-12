@@ -1,10 +1,15 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { CacheConfig } from '../models/api.model';
 
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
   key: string;
+}
+
+export interface CacheConfig {
+  ttl: number;
+  maxSize: number;
+  excludedUrls: string[];
 }
 
 @Injectable({
@@ -20,13 +25,15 @@ export class CacheService {
 
   // Computed signal for cache size
   public cacheSize = computed(() => this.cacheSignal().size);
-  
+
   // Computed signal for cache keys
   public cacheKeys = computed(() => Array.from(this.cacheSignal().keys()));
 
   constructor() {
+    console.log('[CacheService] Constructor initialized');
     // Setup periodic cache cleanup
     setInterval(() => this.cleanupExpiredEntries(), 60 * 1000); // Cleanup every minute
+    console.log('[CacheService] Constructor completed');
   }
 
   /**
@@ -52,20 +59,20 @@ export class CacheService {
   get<T>(key: string): T | null {
     const cache = this.cacheSignal();
     const entry = cache.get(key);
-    
+
     if (!entry) {
       return null;
     }
-    
+
     const now = Date.now();
     const config = this.configSignal();
-    
+
     // Check if entry has expired
     if (now - entry.timestamp > config.ttl) {
       this.remove(key);
       return null;
     }
-    
+
     return entry.data;
   }
 
@@ -74,18 +81,18 @@ export class CacheService {
    */
   set<T>(key: string, data: T): void {
     const config = this.configSignal();
-    
+
     // Check if URL should be excluded from caching
     if (config.excludedUrls?.some(pattern => key.includes(pattern))) {
       return;
     }
-    
+
     this.cacheSignal.update(cache => {
       // Check if we need to remove oldest entries to maintain max size
       if (cache.size >= config.maxSize) {
         this.removeOldestEntries(1);
       }
-      
+
       // Create a new Map to trigger change detection
       const newCache = new Map(cache);
       newCache.set(key, {
@@ -93,7 +100,7 @@ export class CacheService {
         timestamp: Date.now(),
         key
       });
-      
+
       return newCache;
     });
   }
@@ -122,13 +129,13 @@ export class CacheService {
   removeByPattern(pattern: string): void {
     this.cacheSignal.update(cache => {
       const newCache = new Map(cache);
-      
+
       for (const key of newCache.keys()) {
         if (key.includes(pattern)) {
           newCache.delete(key);
         }
       }
-      
+
       return newCache;
     });
   }
@@ -139,20 +146,20 @@ export class CacheService {
   has(key: string): boolean {
     const cache = this.cacheSignal();
     const entry = cache.get(key);
-    
+
     if (!entry) {
       return false;
     }
-    
+
     const now = Date.now();
     const config = this.configSignal();
-    
+
     // Check if entry has expired
     if (now - entry.timestamp > config.ttl) {
       this.remove(key);
       return false;
     }
-    
+
     return true;
   }
 
@@ -162,16 +169,16 @@ export class CacheService {
   private cleanupExpiredEntries(): void {
     const now = Date.now();
     const config = this.configSignal();
-    
+
     this.cacheSignal.update(cache => {
       const newCache = new Map(cache);
-      
+
       for (const [key, entry] of newCache.entries()) {
         if (now - entry.timestamp > config.ttl) {
           newCache.delete(key);
         }
       }
-      
+
       return newCache;
     });
   }
@@ -184,12 +191,12 @@ export class CacheService {
       const newCache = new Map(cache);
       const entries = Array.from(newCache.values())
         .sort((a, b) => a.timestamp - b.timestamp);
-      
+
       // Remove the oldest entries
       for (let i = 0; i < Math.min(count, entries.length); i++) {
         newCache.delete(entries[i].key);
       }
-      
+
       return newCache;
     });
   }

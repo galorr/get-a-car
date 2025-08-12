@@ -139,7 +139,12 @@
     "fuelLevel": 95,
     "mileage": 7850,
     "color": "Alpine White",
-    "features": ["Leather Interior", "Premium Sound", "Sport Package", "Navigation"],
+    "features": [
+      "Leather Interior",
+      "Premium Sound",
+      "Sport Package",
+      "Navigation"
+    ],
     "rentalRate": 95,
     "imageUrl": "assets/images/cars/bmw-3series.jpg"
   },
@@ -211,7 +216,12 @@
     "fuelLevel": 78,
     "mileage": 9850,
     "color": "Black",
-    "features": ["3rd Row Seating", "Leather Interior", "Towing Package", "Navigation"],
+    "features": [
+      "3rd Row Seating",
+      "Leather Interior",
+      "Towing Package",
+      "Navigation"
+    ],
     "rentalRate": 92,
     "imageUrl": "assets/images/cars/chevrolet-suburban.jpg"
   },
@@ -229,7 +239,12 @@
     "fuelLevel": 62,
     "mileage": 16780,
     "color": "Red",
-    "features": ["Turbo Engine", "Sport Suspension", "Apple CarPlay", "Heated Seats"],
+    "features": [
+      "Turbo Engine",
+      "Sport Suspension",
+      "Apple CarPlay",
+      "Heated Seats"
+    ],
     "rentalRate": 65,
     "imageUrl": "assets/images/cars/vw-golf.jpg"
   },
@@ -247,7 +262,12 @@
     "fuelLevel": 90,
     "mileage": 6320,
     "color": "Blue",
-    "features": ["Panoramic Sunroof", "Blind Spot Detection", "Android Auto", "Wireless Charging"],
+    "features": [
+      "Panoramic Sunroof",
+      "Blind Spot Detection",
+      "Android Auto",
+      "Wireless Charging"
+    ],
     "rentalRate": 55,
     "imageUrl": "assets/images/cars/hyundai-tucson.jpg"
   },
@@ -265,7 +285,12 @@
     "fuelLevel": 88,
     "mileage": 8950,
     "color": "Obsidian Black",
-    "features": ["Premium Sound", "Leather Interior", "Driver Assistance Package", "Heated/Cooled Seats"],
+    "features": [
+      "Premium Sound",
+      "Leather Interior",
+      "Driver Assistance Package",
+      "Heated/Cooled Seats"
+    ],
     "rentalRate": 110,
     "imageUrl": "assets/images/cars/mercedes-eclass.jpg"
   },
@@ -337,7 +362,12 @@
     "fuelLevel": 95,
     "mileage": 5120,
     "color": "White",
-    "features": ["AWD", "Panoramic Sunroof", "ProPilot Assist", "Bose Sound System"],
+    "features": [
+      "AWD",
+      "Panoramic Sunroof",
+      "ProPilot Assist",
+      "Bose Sound System"
+    ],
     "rentalRate": 60,
     "imageUrl": "assets/images/cars/nissan-rogue.jpg"
   },
@@ -355,7 +385,12 @@
     "fuelLevel": 80,
     "mileage": 7850,
     "color": "Blue",
-    "features": ["Fast Charging", "Apple CarPlay", "Android Auto", "Heated Seats"],
+    "features": [
+      "Fast Charging",
+      "Apple CarPlay",
+      "Android Auto",
+      "Heated Seats"
+    ],
     "rentalRate": 65,
     "imageUrl": "assets/images/cars/chevrolet-bolt.jpg"
   }

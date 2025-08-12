@@ -1,10 +1,11 @@
-import { Type } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { Observable, of } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import type { Type } from '@angular/core';
+import type { ComponentFixture } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Observable, of } from 'rxjs';
 
 /**
  * Create a component fixture for testing
@@ -25,10 +26,10 @@ export function createComponentFixture<T>(
       RouterTestingModule,
       HttpClientTestingModule,
       NoopAnimationsModule,
-      ...imports
+      ...imports,
     ],
     declarations: [component, ...declarations],
-    providers: [...providers]
+    providers: [...providers],
   }).compileComponents();
 
   return TestBed.createComponent(component);
@@ -40,7 +41,10 @@ export function createComponentFixture<T>(
  * @param selector CSS selector
  * @returns Element
  */
-export function findElement<T>(fixture: ComponentFixture<T>, selector: string): HTMLElement {
+export function findElement<T>(
+  fixture: ComponentFixture<T>,
+  selector: string
+): HTMLElement {
   return fixture.debugElement.query(By.css(selector))?.nativeElement;
 }
 
@@ -50,8 +54,13 @@ export function findElement<T>(fixture: ComponentFixture<T>, selector: string): 
  * @param selector CSS selector
  * @returns Array of elements
  */
-export function findElements<T>(fixture: ComponentFixture<T>, selector: string): HTMLElement[] {
-  return fixture.debugElement.queryAll(By.css(selector)).map(el => el.nativeElement);
+export function findElements<T>(
+  fixture: ComponentFixture<T>,
+  selector: string
+): HTMLElement[] {
+  return fixture.debugElement
+    .queryAll(By.css(selector))
+    .map(el => el.nativeElement);
 }
 
 /**
@@ -71,7 +80,11 @@ export function click<T>(fixture: ComponentFixture<T>, selector: string): void {
  * @param selector CSS selector
  * @param value Input value
  */
-export function setInputValue<T>(fixture: ComponentFixture<T>, selector: string, value: string): void {
+export function setInputValue<T>(
+  fixture: ComponentFixture<T>,
+  selector: string,
+  value: string
+): void {
   const inputElement = findElement(fixture, selector) as HTMLInputElement;
   inputElement.value = value;
   inputElement.dispatchEvent(new Event('input'));
@@ -85,10 +98,10 @@ export function setInputValue<T>(fixture: ComponentFixture<T>, selector: string,
  */
 export function createMockService(methods: Record<string, any>): any {
   const mockService: Record<string, any> = {};
-  
+
   Object.entries(methods).forEach(([methodName, returnValue]) => {
     mockService[methodName] = jasmine.createSpy(methodName);
-    
+
     if (returnValue instanceof Observable) {
       mockService[methodName].and.returnValue(returnValue);
     } else if (returnValue instanceof Promise) {
@@ -99,7 +112,7 @@ export function createMockService(methods: Record<string, any>): any {
       mockService[methodName].and.returnValue(of(returnValue));
     }
   });
-  
+
   return mockService;
 }
 
@@ -113,7 +126,7 @@ export function createMockHttpClient(): any {
     post: jasmine.createSpy('post').and.returnValue(of({})),
     put: jasmine.createSpy('put').and.returnValue(of({})),
     delete: jasmine.createSpy('delete').and.returnValue(of({})),
-    patch: jasmine.createSpy('patch').and.returnValue(of({}))
+    patch: jasmine.createSpy('patch').and.returnValue(of({})),
   };
 }
 
@@ -136,8 +149,8 @@ export function createMockActivatedRoute(
     snapshot: {
       params,
       queryParams,
-      data
-    }
+      data,
+    },
   };
 }
 
@@ -147,10 +160,14 @@ export function createMockActivatedRoute(
  */
 export function createMockRouter(): any {
   return {
-    navigate: jasmine.createSpy('navigate').and.returnValue(Promise.resolve(true)),
-    navigateByUrl: jasmine.createSpy('navigateByUrl').and.returnValue(Promise.resolve(true)),
+    navigate: jasmine
+      .createSpy('navigate')
+      .and.returnValue(Promise.resolve(true)),
+    navigateByUrl: jasmine
+      .createSpy('navigateByUrl')
+      .and.returnValue(Promise.resolve(true)),
     createUrlTree: jasmine.createSpy('createUrlTree').and.returnValue({}),
-    serializeUrl: jasmine.createSpy('serializeUrl').and.returnValue('')
+    serializeUrl: jasmine.createSpy('serializeUrl').and.returnValue(''),
   };
 }
 
