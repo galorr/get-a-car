@@ -212,20 +212,22 @@ export class MapService {
   /**
    * Get marker icon based on car status
    */
-  getMarkerIcon(status: CarStatus): L.Icon {
-    // Create custom icons based on car status
-    const iconUrl = {
-      [CarStatus.AVAILABLE]: 'assets/images/marker-green.png',
-      [CarStatus.RENTED]: 'assets/images/marker-blue.png',
-      [CarStatus.MAINTENANCE]: 'assets/images/marker-orange.png',
-      [CarStatus.INACTIVE]: 'assets/images/marker-gray.png'
+  getMarkerIcon(status: CarStatus): L.DivIcon {
+    // Create custom div icons with different colors based on car status
+    const className = {
+      [CarStatus.AVAILABLE]: 'marker-icon marker-icon-available',
+      [CarStatus.RENTED]: 'marker-icon marker-icon-rented',
+      [CarStatus.MAINTENANCE]: 'marker-icon marker-icon-maintenance',
+      [CarStatus.INACTIVE]: 'marker-icon marker-icon-inactive'
     }[status];
 
-    return L.icon({
-      iconUrl,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34]
+    // Create a div icon with a colored circle
+    return L.divIcon({
+      className: className,
+      html: '<div class="marker-icon-inner"></div>',
+      iconSize: [25, 25],
+      iconAnchor: [12, 12],
+      popupAnchor: [1, -12]
     });
   }
 

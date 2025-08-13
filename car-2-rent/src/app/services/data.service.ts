@@ -248,7 +248,7 @@ export class DataService {
 
     // Use mock data in development mode
     if (environment.mockDataEnabled) {
-      return this.httpService.get<Car[]>('assets/mock-data/cars.json').pipe(
+      return this.httpService.get<Car[]>('/assets/mock-data/cars.json').pipe(
         tap(cars => {
           this.carsSignal.set(cars);
         }),
@@ -301,7 +301,7 @@ export class DataService {
 
     // Use mock data in development mode
     if (environment.mockDataEnabled) {
-      return this.httpService.get<Car[]>('assets/mock-data/cars.json').pipe(
+      return this.httpService.get<Car[]>('/assets/mock-data/cars.json').pipe(
         map(cars => {
           const car = cars.find(c => c.id === id);
           if (!car) {
@@ -697,7 +697,7 @@ export class DataService {
     // Use mock data in development mode
     if (environment.mockDataEnabled) {
 
-      return this.httpService.get<User[]>('assets/mock-data/users.json').pipe(
+      return this.httpService.get<User[]>('/assets/mock-data/users.json').pipe(
         tap(users => {
           this.usersSignal.set(users);
         }),
@@ -750,7 +750,7 @@ export class DataService {
 
     // Use mock data in development mode
     if (environment.mockDataEnabled) {
-      return this.httpService.get<User[]>('assets/mock-data/users.json').pipe(
+      return this.httpService.get<User[]>('/assets/mock-data/users.json').pipe(
         map(users => {
           const user = users.find(u => u.id === id);
           if (!user) {

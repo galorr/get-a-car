@@ -1,10 +1,27 @@
-import { Component, signal, inject, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+  Component,
+  signal,
+  inject,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  effect,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AgGridModule } from 'ag-grid-angular';
-import { ColDef, GridReadyEvent, RowSelectedEvent, GridApi, CellClickedEvent, DomLayoutType } from 'ag-grid-community';
+import type {
+  ColDef,
+  GridReadyEvent,
+  RowSelectedEvent,
+  GridApi,
+  CellClickedEvent,
+  DomLayoutType,
+} from 'ag-grid-community';
+
+import type { Car, CarStatus } from '../../models/car.model';
 import { CarDataService } from '../../services/car-data.service';
-import { Car, CarStatus } from '../../models/car.model';
 
 @Component({
   selector: 'app-car-grid',
@@ -12,7 +29,7 @@ import { Car, CarStatus } from '../../models/car.model';
   imports: [CommonModule, FormsModule, AgGridModule],
   templateUrl: './car-grid.component.html',
   styleUrls: ['./car-grid.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CarGridComponent {
   @Output() toggleGrid = new EventEmitter<void>();
@@ -35,7 +52,7 @@ export class CarGridComponent {
       sortable: true,
       filter: true,
       width: 120,
-      cellClass: (params: any) => this.getSelectedClass(params.data?.id)
+      cellClass: (params: any) => this.getSelectedClass(params.data?.id),
     },
     {
       field: 'name',
@@ -43,7 +60,7 @@ export class CarGridComponent {
       sortable: true,
       filter: true,
       flex: 1,
-      cellClass: (params: any) => this.getSelectedClass(params.data?.id)
+      cellClass: (params: any) => this.getSelectedClass(params.data?.id),
     },
     {
       field: 'status',
@@ -55,7 +72,7 @@ export class CarGridComponent {
         const status = params.value as CarStatus;
         return `<span class="status-badge ${status}">${status}</span>`;
       },
-      cellClass: (params: any) => this.getSelectedClass(params.data?.id)
+      cellClass: (params: any) => this.getSelectedClass(params.data?.id),
     },
     {
       field: 'latitude',
@@ -64,7 +81,7 @@ export class CarGridComponent {
       filter: true,
       width: 120,
       valueFormatter: (params: any) => params.value.toFixed(6),
-      cellClass: (params: any) => this.getSelectedClass(params.data?.id)
+      cellClass: (params: any) => this.getSelectedClass(params.data?.id),
     },
     {
       field: 'longitude',
@@ -73,7 +90,7 @@ export class CarGridComponent {
       filter: true,
       width: 120,
       valueFormatter: (params: any) => params.value.toFixed(6),
-      cellClass: (params: any) => this.getSelectedClass(params.data?.id)
+      cellClass: (params: any) => this.getSelectedClass(params.data?.id),
     },
     {
       field: 'lastUpdated',
@@ -82,20 +99,20 @@ export class CarGridComponent {
       filter: true,
       width: 180,
       valueFormatter: (params: any) => new Date(params.value).toLocaleString(),
-      cellClass: (params: any) => this.getSelectedClass(params.data?.id)
-    }
+      cellClass: (params: any) => this.getSelectedClass(params.data?.id),
+    },
   ];
 
   // Default grid options
   gridOptions = {
-    rowSelection: 'single' as 'single',
+    rowSelection: 'single' as const,
     animateRows: true,
     domLayout: 'autoHeight' as DomLayoutType,
     rowHeight: 48,
     headerHeight: 48,
     defaultColDef: {
-      resizable: true
-    }
+      resizable: true,
+    },
   };
 
   constructor() {
@@ -122,7 +139,7 @@ export class CarGridComponent {
 
       // Update grid if API is available
       if (this.gridApi) {
-        this.gridApi.setRowData(allCars);
+        this.gridApi.setGridOption('rowData', allCars);
       }
     });
   }
@@ -166,23 +183,27 @@ export class CarGridComponent {
       // If search is cleared, reset to all cars
       this.cars.set(this.carDataService.getCars());
       if (this.gridApi) {
-        this.gridApi.setRowData(this.carDataService.getCars());
+        this.gridApi.setGridOption('rowData', this.carDataService.getCars());
       }
       return;
     }
 
     // Filter cars based on search term
-    const filteredCars = this.carDataService.getCars().filter(car =>
-      car.id.toLowerCase().includes(searchTerm) ||
-      car.name.toLowerCase().includes(searchTerm) ||
-      car.status.toLowerCase().includes(searchTerm) ||
-      (car.model && car.model.toLowerCase().includes(searchTerm)) ||
-      (car.licensePlate && car.licensePlate.toLowerCase().includes(searchTerm))
-    );
+    const filteredCars = this.carDataService
+      .getCars()
+      .filter(
+        car =>
+          car.id.toLowerCase().includes(searchTerm) ||
+          car.name.toLowerCase().includes(searchTerm) ||
+          car.status.toLowerCase().includes(searchTerm) ||
+          (car.model && car.model.toLowerCase().includes(searchTerm)) ||
+          (car.licensePlate &&
+            car.licensePlate.toLowerCase().includes(searchTerm))
+      );
 
     this.cars.set(filteredCars);
     if (this.gridApi) {
-      this.gridApi.setRowData(filteredCars);
+      this.gridApi.setGridOption('rowData', filteredCars);
     }
     this.cdr.detectChanges();
   }

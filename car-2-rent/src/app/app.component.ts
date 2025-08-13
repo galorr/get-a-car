@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import type { OnInit } from '@angular/core';
 import {
   Component,
   ChangeDetectionStrategy,
@@ -7,6 +6,8 @@ import {
   effect,
   inject,
   HostListener,
+  runInInjectionContext,
+  Injector,
 } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
@@ -36,13 +37,14 @@ import { NavigationService } from './services/navigation.service';
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'car-2-rent';
 
   // Inject services
   private dataService = inject(DataService);
   private navigationService = inject(NavigationService);
   private mapService = inject(MapService);
+  private injector = inject(Injector);
 
   // Signals for UI state
   isGridCollapsed = signal(false);
@@ -53,43 +55,31 @@ export class AppComponent implements OnInit {
   isNavigating = signal(false);
 
   constructor() {
-    console.log('[AppComponent] Constructor initialized');
-
     // Load initial data
     this.loadInitialData();
 
-    console.log('[AppComponent] Setting up effects');
+    // Setup effects using runInInjectionContext
+    runInInjectionContext(this.injector, () => {
+      // Setup effect to auto-collapse grid on mobile when a car is selected
+      effect(() => {
+        const selectedCar = this.dataService.selectedCar();
+        if (selectedCar && !this.isGridCollapsed()) {
+          this.isGridCollapsed.set(true);
+        }
+      });
 
-    // Setup effect to auto-collapse grid on mobile when a car is selected
-    effect(() => {
-      const selectedCar = this.dataService.selectedCar();
-      console.log(
-        '[AppComponent] Effect: selectedCar changed',
-        selectedCar?.id
-      );
-      if (selectedCar && !this.isGridCollapsed()) {
-        this.isGridCollapsed.set(true);
-      }
+      // Track navigation state
+      effect(() => {
+        const navigating = this.navigationService.isNavigating();
+        this.isNavigating.set(navigating);
+      });
+
+      // Track current route
+      effect(() => {
+        const route = this.navigationService.currentRoute();
+        this.currentRoute.set(route);
+      });
     });
-
-    // Track navigation state
-    effect(() => {
-      const navigating = this.navigationService.isNavigating();
-      console.log('[AppComponent] Effect: isNavigating changed', navigating);
-      this.isNavigating.set(navigating);
-    });
-
-    // Track current route
-    effect(() => {
-      const route = this.navigationService.currentRoute();
-      console.log('[AppComponent] Effect: currentRoute changed', route);
-      this.currentRoute.set(route);
-    });
-  }
-
-  ngOnInit(): void {
-    console.log('[AppComponent] ngOnInit');
-    console.log('[AppComponent] Initial route params handled');
   }
 
   // Methods to toggle UI elements
@@ -99,70 +89,38 @@ export class AppComponent implements OnInit {
 
   // Load initial data
   private async loadInitialData(): Promise<void> {
-    console.log('[AppComponent] loadInitialData: Starting data load');
     this.isLoading.set(true);
 
     try {
       // Simulate network delay
-      console.log('[AppComponent] loadInitialData: Simulating network delay');
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      console.log('[AppComponent] loadInitialData: Network delay complete');
       this.navigationService.isNavigating.set(true);
-
-      // DIAGNOSTIC: Check if services are properly injected
-      console.log('[AppComponent] DIAGNOSTIC: Service instances:', {
-        dataService: !!this.dataService,
-        navigationService: !!this.navigationService,
-        mapService: !!this.mapService,
-      });
 
       try {
         // Load car data
-        console.log('[AppComponent] loadInitialData: Loading cars');
         const cars = await new Promise((resolve, reject) => {
           this.dataService.loadCars().subscribe({
             next: loadedCars => {
-              console.log(
-                '[AppComponent] loadInitialData: Cars loaded successfully',
-                { count: loadedCars?.length || 0 }
-              );
               resolve(loadedCars);
             },
             error: error => {
-              console.error(
-                '[AppComponent] loadInitialData: Error loading cars',
-                error
-              );
               reject(error);
             },
           });
         });
 
         // Load user data
-        console.log('[AppComponent] loadInitialData: Loading users');
         await new Promise((resolve, reject) => {
           this.dataService.loadUsers().subscribe({
             next: users => {
-              console.log(
-                '[AppComponent] loadInitialData: Users loaded successfully',
-                { count: users?.length || 0 }
-              );
               resolve(users);
             },
             error: error => {
-              console.error(
-                '[AppComponent] loadInitialData: Error loading users',
-                error
-              );
               reject(error);
             },
           });
         });
-
-        console.log(
-          '[AppComponent] loadInitialData: All data loaded successfully'
-        );
 
         // Set initial map center based on cars
         const allCars = this.dataService.cars();
@@ -173,34 +131,16 @@ export class AppComponent implements OnInit {
           const centerLat = totalLat / allCars.length;
           const centerLng = totalLng / allCars.length;
 
-          console.log('[AppComponent] loadInitialData: Setting map center', {
-            centerLat,
-            centerLng,
-          });
           this.mapService.setMapCenter(centerLat, centerLng);
-        } else {
-          console.warn(
-            '[AppComponent] loadInitialData: No cars available to set map center'
-          );
         }
       } catch (dataError) {
-        console.error(
-          '[AppComponent] loadInitialData: Error loading data',
-          dataError
-        );
+        // Error loading data
       } finally {
         this.navigationService.isNavigating.set(false);
       }
     } catch (error) {
-      console.error(
-        '[AppComponent] loadInitialData: Error in initialization process',
-        error
-      );
       this.navigationService.isNavigating.set(false);
     } finally {
-      console.log(
-        '[AppComponent] loadInitialData: Completed, setting isLoading to false'
-      );
       this.isLoading.set(false);
     }
   }

@@ -1,10 +1,22 @@
-import { Component, AfterViewInit, signal, inject, HostListener, ChangeDetectionStrategy, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import type { AfterViewInit } from '@angular/core';
+import {
+  Component,
+  signal,
+  inject,
+  HostListener,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  effect,
+  runInInjectionContext,
+  Injector,
+} from '@angular/core';
 import * as L from 'leaflet';
+
 import 'leaflet.markercluster';
+import type { Car, CarStatus } from '../../models/car.model';
 import { CarDataService } from '../../services/car-data.service';
 import { MapService } from '../../services/map.service';
-import { Car, CarStatus } from '../../models/car.model';
 
 @Component({
   selector: 'app-map',
@@ -12,7 +24,7 @@ import { Car, CarStatus } from '../../models/car.model';
   imports: [CommonModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapComponent implements AfterViewInit {
   private map!: L.Map;
@@ -22,21 +34,24 @@ export class MapComponent implements AfterViewInit {
   private carDataService = inject(CarDataService);
   private mapService = inject(MapService);
   private cdr = inject(ChangeDetectorRef);
+  private injector = inject(Injector);
 
   // Signal for selected car
   selectedCarId = signal<string | null>(null);
 
   constructor() {
     // Setup effect to track selected car changes
-    effect(() => {
-      const selectedCar = this.carDataService.selectedCar();
-      if (selectedCar) {
-        this.selectedCarId.set(selectedCar.id);
-        this.highlightSelectedCar(selectedCar.id);
-      } else {
-        this.selectedCarId.set(null);
-        this.clearHighlightedCars();
-      }
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const selectedCar = this.carDataService.selectedCar();
+        if (selectedCar) {
+          this.selectedCarId.set(selectedCar.id);
+          this.highlightSelectedCar(selectedCar.id);
+        } else {
+          this.selectedCarId.set(null);
+          this.clearHighlightedCars();
+        }
+      });
     });
   }
 
@@ -44,10 +59,12 @@ export class MapComponent implements AfterViewInit {
     this.initializeMap();
 
     // Setup effect to track car data changes
-    effect(() => {
-      const cars = this.carDataService.getCars();
-      this.updateMarkers(cars);
-      this.cdr.detectChanges();
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const cars = this.carDataService.getCars();
+        this.updateMarkers(cars);
+        this.cdr.detectChanges();
+      });
     });
   }
 
@@ -57,20 +74,24 @@ export class MapComponent implements AfterViewInit {
 
     this.map = L.map('map', {
       zoomControl: false, // Custom position for zoom control
-      attributionControl: false // Custom position for attribution
+      attributionControl: false, // Custom position for attribution
     }).setView(mapCenter, mapZoom);
 
     // Add custom positioned controls
-    L.control.zoom({
-      position: 'topright'
-    }).addTo(this.map);
+    L.control
+      .zoom({
+        position: 'topright',
+      })
+      .addTo(this.map);
 
-    L.control.attribution({
-      position: 'bottomright'
-    }).addTo(this.map);
+    L.control
+      .attribution({
+        position: 'bottomright',
+      })
+      .addTo(this.map);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+      attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
     // Initialize marker cluster group
@@ -92,7 +113,7 @@ export class MapComponent implements AfterViewInit {
 
   private addMapFilters(): void {
     // Create custom control for filtering car statuses
-    const filterControl = new L.Control({ position: 'topleft' });
+    const filterControl = new L.Control({ position: 'topright' });
 
     filterControl.onAdd = () => {
       const div = L.DomUtil.create('div', 'map-filter-control');
@@ -113,8 +134,9 @@ export class MapComponent implements AfterViewInit {
       // Add event listeners to checkboxes
       const checkboxes = div.querySelectorAll('input[type="checkbox"]');
       checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', (e) => {
+        checkbox.addEventListener('change', e => {
           const target = e.target as HTMLInputElement;
+          // eslint-disable-next-line dot-notation
           const status = target.dataset['status'] as CarStatus;
           this.mapService.toggleStatusVisibility(status);
           this.updateMarkerVisibility();
@@ -184,8 +206,9 @@ export class MapComponent implements AfterViewInit {
     } else {
       // Create new marker with custom icon based on status
       const icon = this.mapService.getMarkerIcon(car.status);
-      const marker = L.marker(position, { icon })
-        .bindPopup(this.mapService.createPopupContent(car));
+      const marker = L.marker(position, { icon }).bindPopup(
+        this.mapService.createPopupContent(car)
+      );
 
       // Add click event to select car
       marker.on('click', () => {
@@ -196,7 +219,7 @@ export class MapComponent implements AfterViewInit {
       marker.on('popupopen', () => {
         const trackButton = document.querySelector('.track-button');
         if (trackButton) {
-          trackButton.addEventListener('click', (e) => {
+          trackButton.addEventListener('click', e => {
             e.stopPropagation();
             // Open registration panel for this car
             this.carDataService.selectCar(car.id);

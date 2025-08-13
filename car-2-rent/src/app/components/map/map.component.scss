@@ -96,3 +96,35 @@
   background-color: rgba(63, 81, 181, 0.8);
   color: white;
 }
+
+/* Custom marker icons */
+:global(.marker-icon) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+}
+
+:global(.marker-icon-inner) {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+:global(.marker-icon-available .marker-icon-inner) {
+  background-color: #4CAF50; /* Green */
+}
+
+:global(.marker-icon-rented .marker-icon-inner) {
+  background-color: #2196F3; /* Blue */
+}
+
+:global(.marker-icon-maintenance .marker-icon-inner) {
+  background-color: #FF9800; /* Orange */
+}
+
+:global(.marker-icon-inactive .marker-icon-inner) {
+  background-color: #9E9E9E; /* Gray */
+}

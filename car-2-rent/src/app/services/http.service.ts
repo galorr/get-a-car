@@ -146,8 +146,14 @@ export class HttpService {
       return url;
     }
 
+    // If the URL is for assets, don't prepend the API URL
+    if (url.startsWith('assets/') || url.startsWith('/assets/')) {
+      // Ensure we have a leading slash but not two
+      return url.startsWith('/') ? url : `/${url}`;
+    }
+
     // Otherwise, combine with the base URL
-    return `${this.baseUrl}${url}`;
+    return `${this.baseUrl}/${url.startsWith('/') ? url.substring(1) : url}`;
   }
 
   /**
