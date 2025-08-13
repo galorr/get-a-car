@@ -1,0 +1,22 @@
+<div class="grid-header">
+  <div class="search-container">
+    <input type="text" placeholder="Search cars by name, ID, status..." (input)="onSearch($event)">
+  </div>
+  <div class="grid-actions">
+    <span class="car-count">{{ cars().length }} cars</span>
+    <button class="toggle-button" (click)="toggleGridView()">
+      {{ isCollapsed() ? 'Expand' : 'Collapse' }}
+    </button>
+  </div>
+</div>
+<ag-grid-angular
+  class="ag-theme-alpine"
+  [rowData]="cars()"
+  [columnDefs]="columnDefs"
+  [gridOptions]="gridOptions"
+  [pagination]="true"
+  [paginationAutoPageSize]="true"
+  (gridReady)="onGridReady($event)"
+  (rowSelected)="onRowSelected($event)"
+  (cellClicked)="onCellClicked($event)">
+</ag-grid-angular>

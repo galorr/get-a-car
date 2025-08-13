@@ -1,0 +1,130 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+/* Map Filter Control Styles */
+.map-filter-control {
+  background-color: white;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  min-width: 150px;
+}
+
+.filter-header {
+  font-weight: bold;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+  color: #3f51b5;
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-options label {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.filter-options input {
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+/* Marker highlight styles */
+:global(.selected-marker) {
+  z-index: 1000 !important;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.8));
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+/* Popup styles */
+:global(.car-popup) {
+  min-width: 200px;
+}
+
+:global(.car-popup h3) {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+:global(.car-popup p) {
+  margin: 5px 0;
+}
+
+:global(.track-button) {
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+}
+
+:global(.track-button:hover) {
+  background-color: #303f9f;
+}
+
+/* Marker cluster customization */
+:global(.marker-cluster) {
+  background-color: rgba(63, 81, 181, 0.6);
+}
+
+:global(.marker-cluster div) {
+  background-color: rgba(63, 81, 181, 0.8);
+  color: white;
+}
+
+/* Custom marker icons */
+:global(.marker-icon) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+}
+
+:global(.marker-icon-inner) {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+:global(.marker-icon-available .marker-icon-inner) {
+  background-color: #4CAF50; /* Green */
+}
+
+:global(.marker-icon-rented .marker-icon-inner) {
+  background-color: #2196F3; /* Blue */
+}
+
+:global(.marker-icon-maintenance .marker-icon-inner) {
+  background-color: #FF9800; /* Orange */
+}
+
+:global(.marker-icon-inactive .marker-icon-inner) {
+  background-color: #9E9E9E; /* Gray */
+}

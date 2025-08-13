@@ -1,0 +1,23 @@
+{
+  "data": {
+    "id": "car-001",
+    "name": "Toyota Corolla",
+    "latitude": 51.507,
+    "longitude": -0.092,
+    "status": "rented",
+    "model": "Corolla",
+    "year": 2022,
+    "licensePlate": "ABC-1234",
+    "lastUpdated": "2025-08-10T19:20:00Z",
+    "type": "sedan",
+    "fuelLevel": 75,
+    "mileage": 12650,
+    "color": "Silver",
+    "features": ["Bluetooth", "Backup Camera", "Cruise Control"],
+    "rentalRate": 45,
+    "imageUrl": "assets/images/cars/toyota-corolla.jpg"
+  },
+  "success": true,
+  "message": "Car updated successfully",
+  "timestamp": "2025-08-10T19:20:00Z"
+}

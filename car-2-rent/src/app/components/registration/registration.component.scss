@@ -1,0 +1,259 @@
+.registration-panel {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 320px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  overflow: hidden;
+  transition: transform 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+  
+  &.minimized {
+    height: 48px;
+    overflow: hidden;
+    
+    .panel-content {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #3f51b5;
+  color: white;
+  cursor: move;
+  user-select: none;
+  
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+  }
+}
+
+.minimize-button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.panel-content {
+  padding: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+  transition: opacity 0.3s ease;
+}
+
+.registration-form {
+  h4 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 16px;
+    color: #333;
+  }
+}
+
+.form-group {
+  margin-bottom: 16px;
+  
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    
+    &:focus {
+      outline: none;
+      border-color: #3f51b5;
+      box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+    }
+    
+    &.error {
+      border-color: #f44336;
+    }
+  }
+  
+  .error-message {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+}
+
+.register-button {
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  
+  &:hover {
+    background-color: #303f9f;
+  }
+}
+
+.user-info {
+  h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .user-email {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+}
+
+.selected-car {
+  background-color: #f5f5f5;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+  
+  .car-details {
+    margin-bottom: 12px;
+  }
+  
+  .car-name {
+    font-weight: 500;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  
+  .car-status {
+    margin-bottom: 12px;
+  }
+  
+  .car-info {
+    p {
+      margin: 4px 0;
+      font-size: 14px;
+      color: #555;
+    }
+  }
+}
+
+.registered-message {
+  color: #4caf50;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.registered-cars {
+  margin-top: 24px;
+  
+  .no-cars {
+    color: #666;
+    font-style: italic;
+    font-size: 14px;
+  }
+}
+
+.car-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  
+  li {
+    margin-bottom: 8px;
+    cursor: pointer;
+    
+    &:hover {
+      .car-list-item {
+        background-color: #f0f0f0;
+      }
+    }
+  }
+  
+  .car-list-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    transition: background-color 0.2s;
+  }
+  
+  .car-name {
+    flex: 1;
+    font-size: 14px;
+  }
+}
+
+.unregister-button {
+  background-color: transparent;
+  color: #f44336;
+  border: 1px solid #f44336;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 8px;
+  
+  &:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+  
+  &.available {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  &.rented {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+  
+  &.maintenance {
+    background-color: #fff3e0;
+    color: #ef6c00;
+  }
+  
+  &.inactive {
+    background-color: #f5f5f5;
+    color: #757575;
+  }
+  
+  &.small {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+}

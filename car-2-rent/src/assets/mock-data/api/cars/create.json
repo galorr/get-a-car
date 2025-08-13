@@ -1,0 +1,28 @@
+{
+  "data": {
+    "id": "car-021",
+    "name": "Audi Q5",
+    "latitude": 51.506,
+    "longitude": -0.091,
+    "status": "available",
+    "model": "Q5",
+    "year": 2023,
+    "licensePlate": "XYZ-1234",
+    "lastUpdated": "2025-08-10T19:15:00Z",
+    "type": "suv",
+    "fuelLevel": 100,
+    "mileage": 0,
+    "color": "Black",
+    "features": [
+      "Leather Interior",
+      "Navigation",
+      "Panoramic Sunroof",
+      "Premium Sound"
+    ],
+    "rentalRate": 95,
+    "imageUrl": "assets/images/cars/audi-q5.jpg"
+  },
+  "success": true,
+  "message": "Car created successfully",
+  "timestamp": "2025-08-10T19:15:00Z"
+}
